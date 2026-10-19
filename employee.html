@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workforce Hub | Employee Dashboard</title>
+    <!-- Professional Icons Font -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1e293b; /* Premium slate dark */
+            --accent-color: #0284c7;  /* Corporate sky blue */
+            --success-color: #16a34a; /* Modern emerald green */
+            --danger-color: #dc2626;  /* Crimson red */
+            --bg-color: #f8fafc;      /* Crisp light grey */
+            --text-main: #334155;     /* Dark charcoal text */
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-section {
+            padding: 10px 25px 30px 25px;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 25px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+/* Hover state and Active state styling */
+        .sidebar-menu li a:hover, .sidebar-menu li.active a {
+            color: white;
+            background-color: #0d2835; /* This is the bright blue from your other screens */
+            border-radius: 10px;
+            margin-left: 15px;
+            margin-right: 15px;
+        }
+
+/* Clear out the old left border line entirely */
+.sidebar-menu li.active a {
+    border-left: none;
+}
+        /* Main App Body Layout */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Action Bar */
+        .topbar {
+            background-color: white;
+            height: 70px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 40px;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .user-profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .container { 
+            padding: 40px; 
+            max-width: 1200px; 
+            margin: 0 auto;
+            width: calc(100% - 80px);
+        }
+
+        /* Premium Profile Jumbotron */
+        .welcome-jumbotron { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: var(--card-shadow); 
+            margin-bottom: 30px; 
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .welcome-jumbotron h1 { 
+            margin: 0 0 8px 0; 
+            color: var(--primary-color); 
+            font-size: 28px;
+            text-transform: capitalize; /* Automatically capitalizes 'fathima zia k' nicely */
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #e2e8f0;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-badge.active { background-color: #dcfce7; color: #15803d; }
+
+        /* Structural Dashboard Grid */
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 30px; 
+        }
+
+        .dashboard-card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: var(--card-shadow); 
+        }
+
+        .dashboard-card h3 { 
+            margin-top: 0; 
+            color: var(--primary-color); 
+            font-size: 18px;
+            border-bottom: 1px solid #e2e8f0; 
+            padding-bottom: 15px; 
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Modernized Buttons */
+        .btn-container { display: flex; gap: 15px; margin-top: 25px; }
+        
+        .action-btn { 
+            flex: 1;
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white; 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            font-weight: 600;
+            font-size: 14px; 
+            transition: opacity 0.2s;
+        }
+        .action-btn:hover { opacity: 0.9; }
+        .btn-primary { background-color: var(--accent-color); }
+        .btn-success { background-color: var(--success-color); }
+        .btn-danger { background-color: var(--danger-color); }
+
+        /* Form Styling Elements */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #475569; }
+        .form-control { 
+            width: 100%; 
+            padding: 10px 14px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-family: inherit;
+            background-color: #f8fafc;
+            transition: border 0.2s;
+        }
+        .form-control:focus { outline: none; border-color: var(--accent-color); background-color: white; }
+    </style>
+</head>
+<body>
+
+    <!-- Professional Left Sidebar -->
+    <div class="sidebar">
+        <div class="brand-section">
+            <i class="fa-solid fa-cubes-technological"></i> Workforce Hub
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active"><a href="#dashboard" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+            <li><a href="/attendance_history" class="nav-link"><i class="fa-solid fa-calendar-check"></i> Attendance History</a></li>
+            <li><a href="/leave_history" class="nav-link"><i class="fa-solid fa-file-invoice"></i> Leave Requests</a></li>
+            <li><a href="/settings" class="nav-link"><i class="fa-solid fa-gear"></i> Settings</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Working Container Layout -->
+    <div class="main-content">
+        <!-- Top Status Bar -->
+        <div class="topbar">
+            <div class="user-profile-badge">
+                <i class="fa-solid fa-circle-user fa-lg"></i>
+                <span>{{ session.get('user_name', 'Employee') }}</span>
+                <a href="/logout" class="action-btn btn-danger" style="padding: 6px 12px; font-size: 12px; margin-left: 15px;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Modern User Header Jumbotron -->
+            <div class="welcome-jumbotron">
+                <h1>Welcome back, {{ session.get('user_name', 'Employee') }}!</h1>
+                <div style="display: flex; gap: 15px; margin-top: 10px;">
+                    <span class="status-badge"><strong>Role:</strong> Employee</span>
+                    <span class="status-badge active"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> Session: Active</span>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Attendance Punch Module -->
+                <div class="dashboard-card">
+                    <h3><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-color);"></i> Attendance Management</h3>
+                    <p style="color: #64748b; font-size: 14px; margin: 0;">Log your start and end work markers for current active shift.</p>
+                    
+                    <div class="btn-container">
+                        <form action="/checkin" method="POST" style="flex: 1;">
+                            <button type="submit" class="action-btn btn-success" style="width: 100%;">
+                                <i class="fa-solid fa-business-time"></i> Punch In
+                            </button>
+                        </form>
+                        <form action="/checkout" method="POST" style="flex: 1;">
+                            <button type="submit" class="action-btn btn-danger" style="width: 100%;">
+                                <i class="fa-solid fa-circle-stop"></i> Punch Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modern Absence Application Form -->
+                <div class="dashboard-card">
+                    <h3><i class="fa-solid fa-envelope-open-text" style="color: var(--accent-color);"></i> Request Absence / Leave</h3>
+                    <form action="/apply_leave" method="POST">
+                        <div class="form-group">
+                            <label for="leave_date">Effective Date of Absence</label>
+                            <input type="date" id="leave_date" name="leave_date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reason">Reason / Formal Justification</label>
+                            <textarea id="reason" name="reason" rows="3" class="form-control" placeholder="Please type a formal reason for your scheduled absence..." required></textarea>
+                        </div>
+                        <button type="submit" class="action-btn btn-primary" style="width: 100%;">
+                            <i class="fa-solid fa-paper-plane"></i> Submit Application
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      {% if category == 'success' %}
+      <div id="successModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 99999;">
+          <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); text-align: center; max-width: 380px; width: 90%; animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+              <div style="width: 70px; height: 70px; background-color: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 32px; margin: 0 auto 20px auto;">
+                  <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <h3 style="color: #0f172a; margin: 0 0 10px 0; font-size: 22px; font-weight: 700;">Action Confirmed!</h3>
+              <p style="color: #64748b; margin: 0 0 25px 0; font-size: 14px; line-height: 1.5;">{{ message }}</p>
+              <button onclick="document.getElementById('successModal').style.display='none'" style="background-color: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; font-size: 14px;">
+                  Dismiss Notification
+              </button>
+          </div>
+      </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<style>
+@keyframes modalPop {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+</style>
+
+            
+    
+           
+
+</body>
+</html>

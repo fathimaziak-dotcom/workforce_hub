@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workforce Hub | Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --ink:#161B2E;
+    --ink-2:#222A45;
+    --paper:#EEF1EC;
+    --card:#EEF4EC;
+    --line:#D6E2D3;
+    --amber:#E8A23D;
+    --amber-deep:#C97F22;
+    --amber-soft:#FBF1E2;
+    --clay:#C1453B;
+    --clay-soft:#F7E6E4;
+    --sage:#4F7A5B;
+    --sage-soft:#D9E9DA;
+    --marine:#3F6F94;
+    --marine-soft:#E1EAF1;
+    --slate:#5C6470;
+    --slate-soft:#E7E9EE;
+    --ink-text:#1D2333;
+    --font-display:'Big Shoulders Display', sans-serif;
+    --font-body:'Work Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--ink); font-family:var(--font-body); color:var(--ink-text); }
+  a{color:inherit; text-decoration:none;}
+  button,select,input{font-family:inherit;}
+  button{cursor:pointer;}
+  :focus-visible{ outline:2px solid var(--amber-deep); outline-offset:2px; border-radius:4px; }
+  .layout{display:flex; min-height:100vh;}
+
+  /* ---------- Sidebar (shared shell) ---------- */
+  .sidebar{
+    background:var(--ink); color:#C7CCDA; width:248px; flex-shrink:0;
+    padding:28px 18px; display:flex; flex-direction:column; gap:6px;
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; color:#fff;
+    font-family:var(--font-display); font-weight:700; font-size:22px;
+    letter-spacing:.02em; margin-bottom:34px; padding:0 10px;
+  }
+  .brand i{color:var(--amber); font-size:18px;}
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:11px 14px; border-radius:9px;
+    font-size:14.5px; font-weight:500; color:#AEB4C4; border-left:3px solid transparent;
+  }
+  .nav-item i{width:18px; text-align:center; font-size:14px;}
+  .nav-item:hover{background:var(--ink-2); color:#fff;}
+  .nav-item.active{ background:var(--ink-2); color:#fff; border-left:3px solid var(--amber); }
+  .nav-badge{
+    margin-left:auto; background:var(--amber); color:var(--ink);
+    font-family:var(--font-mono); font-size:11px; font-weight:600;
+    padding:1px 7px; border-radius:20px;
+  }
+
+  .main{flex:1; padding:32px 40px; max-width:980px;}
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:30px; flex-wrap:wrap; gap:14px; }
+  .page-title{ font-family:var(--font-display); font-weight:700; font-size:34px; color:#fff; letter-spacing:.01em; }
+  .page-sub{ font-size:13.5px; color:#9BA3B8; margin-top:2px; }
+  .mode-pill{
+    background:var(--amber); color:var(--ink); font-size:12.5px; font-weight:600;
+    padding:8px 14px; border-radius:20px; display:flex; align-items:center; gap:6px;
+  }
+  .mode-pill i{color:var(--ink); font-size:9px;}
+  .pulse{animation:pulseDot 1.8s infinite;}
+  @keyframes pulseDot{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  /* ---------- Panels ---------- */
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; box-shadow:0 14px 30px rgba(10,14,30,0.35); margin-bottom:22px;
+  }
+  .panel-head{ display:flex; align-items:center; gap:10px; padding:18px 24px; border-bottom:1px solid var(--line); }
+  .panel-head h2{
+    font-family:var(--font-display); font-size:17px; font-weight:700; margin:0;
+    color:var(--ink); display:flex; align-items:center; gap:9px;
+  }
+  .panel-head h2 i{color:var(--amber-deep); font-size:14px;}
+  .panel-sub{ font-size:13px; color:var(--slate); padding:14px 24px 0; margin:0; }
+  .panel-body{ padding:18px 24px 24px; }
+
+  .form-group{ margin-bottom:18px; }
+  .form-group label{
+    display:block; font-size:13px; font-weight:600; color:var(--ink-text); margin-bottom:7px;
+  }
+  .form-control{
+    width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:9px;
+    background:var(--paper); font-size:13.5px; color:var(--ink-text);
+  }
+  .form-control:focus{ outline:none; border-color:var(--amber-deep); background:#fff; }
+  .form-control.time-input{ width:auto; min-width:160px; }
+  .form-hint{ font-size:12px; color:var(--slate); margin-top:6px; }
+
+  .btn-submit{
+    display:inline-flex; align-items:center; gap:8px; background:var(--ink); color:#fff;
+    border:none; padding:11px 20px; border-radius:9px; font-size:13.5px; font-weight:600;
+  }
+  .btn-submit:hover{ background:var(--ink-2); }
+  .btn-submit.amber{ background:var(--amber-deep); }
+  .btn-submit.amber:hover{ background:#a8691b; }
+
+  @media (max-width:760px){
+    .layout{flex-direction:column;}
+    .sidebar{ width:100%; flex-direction:row; align-items:center; padding:14px 16px; gap:2px; overflow-x:auto; }
+    .brand{display:none;}
+    .nav-item{flex-direction:column; gap:4px; padding:8px 12px; border-left:none; border-bottom:3px solid transparent;}
+    .nav-item.active{border-left:none; border-bottom:3px solid var(--amber);}
+    .main{padding:22px 18px;}
+    .page-title{font-size:26px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-briefcase"></i> Workforce Hub</div>
+    <a class="nav-item" href="{{ url_for('manager_dashboard') }}"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+    <a class="nav-item" href="{{ url_for('attendance_log') }}"><i class="fa-regular fa-rectangle-list"></i><span>Attendance Log</span></a>
+    <a class="nav-item" href="{{ url_for('manager_approvals') }}">
+      <i class="fa-solid fa-square-check"></i><span>Approvals</span>
+      {% if pending_requests and pending_requests|length > 0 %}
+        <span class="nav-badge">{{ pending_requests|length }}</span>
+      {% endif %}
+    </a>
+     <a class="nav-item " href="{{ url_for('manager_tasks') }}">
+      <i class="fa-solid fa-list-check"></i><span>Tasks</span>
+      {% if pending_tasks_count and pending_tasks_count > 0 %}
+        <span class="nav-badge">{{ pending_tasks_count }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item" href="{{ url_for('employee_directory') }}"><i class="fa-solid fa-users"></i><span>Employee Directory</span></a>
+    <a class="nav-item active" href="{{ url_for('manager_settings') }}"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Settings</div>
+        <div class="page-sub">Profile & attendance rules</div>
+      </div>
+      <div class="mode-pill"><i class="fa-solid fa-circle pulse"></i> Manager Mode</div>
+    </div>
+
+    <!-- Profile -->
+    <div class="panel">
+      <div class="panel-head"><h2><i class="fa-solid fa-user"></i> Profile</h2></div>
+      <p class="panel-sub">Update your display name or password.</p>
+      <div class="panel-body">
+        <form method="POST" action="{{ url_for('manager_settings_profile') }}">
+          <div class="form-group">
+            <label for="display_name">Display Name</label>
+            <input type="text" id="display_name" name="display_name" class="form-control" value="{{ manager_name }}" required>
+          </div>
+          <div class="form-group">
+            <label for="new_password">New Password</label>
+            <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Leave blank to keep current password">
+          </div>
+          <button type="submit" class="btn-submit"><i class="fa-solid fa-floppy-disk"></i> Save Profile</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Attendance Rules -->
+    <div class="panel">
+      <div class="panel-head"><h2><i class="fa-solid fa-clock"></i> Attendance Rules</h2></div>
+      <p class="panel-sub">Anyone punching in after this time is marked as a late arrival.</p>
+      <div class="panel-body">
+        <form method="POST" action="{{ url_for('manager_settings_attendance') }}">
+          <div class="form-group">
+            <label for="late_cutoff_time">Late Arrival Cutoff</label>
+            <input type="time" id="late_cutoff_time" name="late_cutoff_time" class="form-control time-input" value="{{ late_cutoff_time[:5] }}" required>
+          </div>
+          <button type="submit" class="btn-submit amber"><i class="fa-solid fa-floppy-disk"></i> Save Rule</button>
+        </form>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

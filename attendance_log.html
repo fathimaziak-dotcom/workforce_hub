@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workforce Hub — Attendance Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --ink:#161B2E;
+    --ink-2:#222A45;
+    --paper:#EEF1EC;
+    --card:#EEF4EC;
+    --line:#D6E2D3;
+    --amber:#E8A23D;
+    --amber-deep:#C97F22;
+    --amber-soft:#FBF1E2;
+    --clay:#C1453B;
+    --clay-soft:#F7E6E4;
+    --sage:#4F7A5B;
+    --sage-soft:#D9E9DA;
+    --marine:#3F6F94;
+    --marine-soft:#E1EAF1;
+    --slate:#5C6470;
+    --slate-soft:#E7E9EE;
+    --ink-text:#1D2333;
+    --font-display:'Big Shoulders Display', sans-serif;
+    --font-body:'Work Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--ink); font-family:var(--font-body); color:var(--ink-text); }
+  a{color:inherit; text-decoration:none;}
+  button,select,input{font-family:inherit;}
+  button{cursor:pointer;}
+  :focus-visible{ outline:2px solid var(--amber-deep); outline-offset:2px; border-radius:4px; }
+  .layout{display:flex; min-height:100vh;}
+
+  /* ---------- Sidebar (shared shell) ---------- */
+  .sidebar{
+    background:var(--ink); color:#C7CCDA; width:248px; flex-shrink:0;
+    padding:28px 18px; display:flex; flex-direction:column; gap:6px;
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; color:#fff;
+    font-family:var(--font-display); font-weight:700; font-size:22px;
+    letter-spacing:.02em; margin-bottom:34px; padding:0 10px;
+  }
+  .brand i{color:var(--amber); font-size:18px;}
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:11px 14px; border-radius:9px;
+    font-size:14.5px; font-weight:500; color:#AEB4C4; border-left:3px solid transparent;
+  }
+  .nav-item i{width:18px; text-align:center; font-size:14px;}
+  .nav-item:hover{background:var(--ink-2); color:#fff;}
+  .nav-item.active{ background:var(--ink-2); color:#fff; border-left:3px solid var(--amber); }
+  .nav-badge{
+    margin-left:auto; background:var(--amber); color:var(--ink);
+    font-family:var(--font-mono); font-size:11px; font-weight:600;
+    padding:1px 7px; border-radius:20px;
+  }
+
+  .main{flex:1; padding:32px 40px; max-width:1240px;}
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:30px; flex-wrap:wrap; gap:14px; }
+  .page-title{ font-family:var(--font-display); font-weight:700; font-size:34px; color:#fff; letter-spacing:.01em; }
+  .page-sub{ font-size:13.5px; color:#9BA3B8; margin-top:2px; }
+  .topbar-right{ display:flex; align-items:center; gap:12px; }
+  .clock{
+    font-family:var(--font-mono); font-size:13px; color:var(--ink);
+    background:var(--card); border:1px solid var(--line); padding:8px 14px; border-radius:8px;
+  }
+  .mode-pill{
+    background:var(--amber); color:var(--ink); font-size:12.5px; font-weight:600;
+    padding:8px 14px; border-radius:20px; display:flex; align-items:center; gap:6px;
+  }
+  .mode-pill i{color:var(--ink); font-size:9px;}
+  .pulse{animation:pulseDot 1.8s infinite;}
+  @keyframes pulseDot{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  /* ---------- Panels (shared shell) ---------- */
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; box-shadow:0 14px 30px rgba(10,14,30,0.35); margin-bottom:22px;
+  }
+  .panel-head{ display:flex; align-items:center; gap:10px; padding:16px 22px; border-bottom:1px solid var(--line); }
+  .panel-head h2{
+    font-family:var(--font-display); font-size:17px; font-weight:700; margin:0;
+    color:var(--ink); display:flex; align-items:center; gap:9px;
+  }
+  .panel-head h2 i{color:var(--amber-deep); font-size:14px;}
+  .panel-head .trend-range{ margin-left:auto; font-family:var(--font-mono); font-size:11.5px; color:var(--slate); }
+
+  /* ---------- Trend chart ---------- */
+  .trend-body{ padding:18px 22px 8px; position:relative; }
+  #trendCanvas{ width:100%; height:120px; display:block; cursor:crosshair; }
+  .trend-tooltip{
+    position:absolute; pointer-events:none; background:var(--ink); color:#fff;
+    font-family:var(--font-mono); font-size:11.5px; padding:7px 10px; border-radius:8px;
+    transform:translate(-50%,-115%); opacity:0; transition:opacity .12s ease; white-space:nowrap;
+    box-shadow:0 8px 18px rgba(10,14,30,0.4); z-index:5;
+  }
+  .trend-tooltip.show{opacity:1;}
+  .trend-tooltip b{color:var(--amber);}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{ display:flex; align-items:center; gap:10px; padding:16px 22px; flex-wrap:wrap; }
+  .search-wrap{ position:relative; flex:1; min-width:200px; max-width:280px; }
+  .search-wrap i{ position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--slate); font-size:13px; }
+  .search-wrap input{
+    width:100%; padding:9px 12px 9px 34px; border:1px solid var(--line); border-radius:9px;
+    background:var(--paper); font-size:13px; color:var(--ink-text);
+  }
+  .toolbar select{
+    padding:9px 12px; border:1px solid var(--line); border-radius:9px; background:var(--paper);
+    font-size:13px; color:var(--ink-text);
+  }
+  .chip-group{ display:flex; gap:6px; background:var(--paper); padding:4px; border-radius:10px; border:1px solid var(--line); }
+  .chip{
+    border:none; background:transparent; padding:7px 13px; border-radius:7px; font-size:12.5px;
+    font-weight:600; color:var(--slate);
+  }
+  .chip.active{ background:var(--ink); color:#fff; }
+  .toolbar-right{ margin-left:auto; display:flex; gap:8px; }
+  .btn-export{
+    background:var(--sage); color:#fff; border:none; padding:9px 15px; border-radius:9px;
+    font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:7px;
+  }
+  .btn-export:hover{background:#436a51;}
+  .btn-clear{
+    background:#fff; color:var(--slate); border:1px solid var(--line); padding:9px 13px;
+    border-radius:9px; font-size:12.5px; font-weight:600;
+  }
+  .btn-clear:hover{background:var(--paper);}
+
+  /* ---------- Table ---------- */
+  table{width:100%; border-collapse:collapse;}
+  thead th{
+    text-align:left; font-family:var(--font-mono); font-size:11px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--slate); padding:12px 18px; border-bottom:1px solid var(--line);
+    cursor:pointer; user-select:none; white-space:nowrap;
+  }
+  thead th:hover{color:var(--ink);}
+  thead th .sort-arrow{margin-left:5px; font-size:9px; opacity:.35;}
+  thead th.sorted .sort-arrow{opacity:1; color:var(--amber-deep);}
+  tbody tr.data-row{ border-bottom:1px solid var(--line); transition:background .15s ease; }
+  tbody tr.data-row:hover{ background:var(--paper); cursor:pointer; }
+  tbody tr.data-row td{ padding:13px 18px; font-size:13.5px; vertical-align:middle; }
+  .avatar{
+    width:34px; height:34px; border-radius:50%; background:#E2E7F2; color:var(--ink);
+    font-family:var(--font-mono); font-weight:600; font-size:12px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:10px;
+  }
+  .name-cell{display:flex; align-items:center;}
+  .name-text .ledger-name{font-weight:600; font-size:13.5px;}
+  .name-text .dept-tag{font-family:var(--font-mono); font-size:11px; color:var(--slate); margin-top:1px;}
+  .date-cell{font-family:var(--font-mono); font-size:12.5px; color:var(--ink-text);}
+  .hours-cell{font-family:var(--font-mono); font-size:12.5px;}
+
+  .status-pill{
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600;
+    padding:4px 11px; border-radius:20px;
+  }
+  .status-pill .dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+  .status-present{color:var(--sage); background:var(--sage-soft);}
+  .status-late{color:var(--marine); background:var(--marine-soft);}
+  .status-absent{color:var(--clay); background:var(--clay-soft);}
+  .status-leave{color:var(--amber-deep); background:var(--amber-soft);}
+
+  /* punch trail */
+  .punch-track{
+    position:relative; width:150px; height:18px; background:var(--paper);
+    border-radius:5px; border:1px solid var(--line);
+  }
+  .punch-track .late-zone{ position:absolute; top:0; bottom:0; background:rgba(193,69,59,0.08); }
+  .punch-track .punch-bar{ position:absolute; top:50%; height:3px; transform:translateY(-50%); border-radius:3px; }
+  .punch-track .punch-dot{
+    position:absolute; top:50%; width:9px; height:9px; border-radius:50%;
+    border:2px dashed currentColor; transform:translate(-50%,-50%); background:var(--card);
+  }
+  .punch-track .punch-empty{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:9.5px; color:var(--slate); letter-spacing:.04em;
+  }
+  .punch-cell{display:flex; flex-direction:column; gap:5px;}
+  .punch-times{
+    font-family:var(--font-mono); font-size:11px; color:var(--slate); display:flex; align-items:center; gap:5px;
+  }
+  .punch-times .t-in{color:var(--ink-text); font-weight:600;}
+  .punch-times .t-out{color:var(--ink-text); font-weight:600;}
+  .punch-times i{font-size:8px; color:var(--slate);}
+  .punch-track.t-present .punch-bar, .punch-track.t-present .punch-dot{color:var(--sage);}
+  .punch-track.t-late .punch-bar, .punch-track.t-late .punch-dot{color:var(--marine);}
+  .punch-track.t-absent .punch-bar, .punch-track.t-absent .punch-dot{color:var(--clay);}
+  .punch-track.t-leave .punch-bar, .punch-track.t-leave .punch-dot{color:var(--amber-deep);}
+
+  .expand-toggle{ color:var(--slate); font-size:12px; transition:transform .2s ease; }
+  tr.data-row.open .expand-toggle{ transform:rotate(180deg); color:var(--amber-deep); }
+
+  tr.detail-row td{ padding:0; border-bottom:1px solid var(--line); }
+  .detail-wrap{ max-height:0; overflow:hidden; transition:max-height .25s ease; background:var(--paper); }
+  tr.detail-row.open .detail-wrap{ max-height:140px; }
+  .detail-inner{ padding:14px 28px 16px; display:flex; gap:30px; flex-wrap:wrap; }
+  .detail-block{font-size:12.5px; color:var(--ink-text); max-width:340px;}
+  .detail-block .lbl{ font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--slate); margin-bottom:4px; }
+
+  .empty{ padding:46px 24px; text-align:center; color:var(--slate); }
+  .empty i{font-size:26px; color:var(--sage); margin-bottom:10px; display:block;}
+
+  /* ---------- Pagination ---------- */
+  .table-footer{
+    display:flex; align-items:center; justify-content:space-between; padding:14px 22px;
+    border-top:1px solid var(--line); flex-wrap:wrap; gap:10px;
+  }
+  .footer-left{ font-size:12.5px; color:var(--slate); display:flex; align-items:center; gap:8px; }
+  .footer-left select{ border:1px solid var(--line); border-radius:7px; padding:4px 8px; background:var(--paper); font-size:12.5px; }
+  .pager{ display:flex; align-items:center; gap:6px; }
+  .pager button{
+    border:1px solid var(--line); background:#fff; border-radius:7px; width:30px; height:30px;
+    font-size:12px; color:var(--ink-text);
+  }
+  .pager button:disabled{opacity:.35; cursor:not-allowed;}
+  .pager button:not(:disabled):hover{background:var(--paper);}
+  .pager span{font-family:var(--font-mono); font-size:12px; color:var(--slate); padding:0 4px;}
+
+
+  @media (max-width:760px){
+    .layout{flex-direction:column;}
+    .sidebar{ width:100%; flex-direction:row; align-items:center; padding:14px 16px; gap:2px; overflow-x:auto; }
+    .brand{display:none;}
+    .nav-item{flex-direction:column; gap:4px; padding:8px 12px; border-left:none; border-bottom:3px solid transparent;}
+    .nav-item.active{border-left:none; border-bottom:3px solid var(--amber);}
+    .main{padding:22px 18px;}
+    .page-title{font-size:26px;}
+    thead{display:none;}
+    table, tbody, tr, td{display:block; width:100%;}
+    tbody tr.data-row{ padding:12px 16px; border-bottom:1px solid var(--line); }
+    tbody tr.data-row td{ padding:3px 0; border:none; }
+    .name-cell{margin-bottom:6px;}
+    .punch-track{width:100%; margin:6px 0;}
+    tr.detail-row td{padding:0;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-briefcase"></i> Workforce Hub</div>
+    <a class="nav-item" href="{{ url_for('manager_dashboard') }}"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+    <a class="nav-item active" href="{{ url_for('attendance_log') }}"><i class="fa-regular fa-rectangle-list"></i><span>Attendance Log</span></a>
+    <a class="nav-item" href="{{ url_for('manager_approvals') }}">
+      <i class="fa-solid fa-square-check"></i><span>Approvals</span>
+      {% if pending_approvals_count and pending_approvals_count > 0 %}
+        <span class="nav-badge">{{ pending_approvals_count }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item" href="{{ url_for('manager_tasks') }}">
+      <i class="fa-solid fa-list-check"></i><span>Tasks</span>
+      {% if pending_tasks_count and pending_tasks_count > 0 %}
+        <span class="nav-badge">{{ pending_tasks_count }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item" href="{{ url_for('employee_directory') }}"><i class="fa-solid fa-users"></i><span>Employee Directory</span></a>
+    <a class="nav-item" href="{{ url_for('manager_settings') }}"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Attendance Log</div>
+        <div class="page-sub" id="dateLine">Full punch history & filters</div>
+      </div>
+      <div class="topbar-right">
+        <div class="clock" id="clock"></div>
+        <div class="mode-pill"><i class="fa-solid fa-circle pulse"></i> Live Log</div>
+      </div>
+    </div>
+
+    <!-- Trend chart -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2><i class="fa-solid fa-chart-column"></i> Attendance Trend</h2>
+        <span class="trend-range" id="trendRangeLabel"></span>
+      </div>
+      <div class="trend-body">
+        <canvas id="trendCanvas"></canvas>
+        <div class="trend-tooltip" id="trendTooltip"></div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="panel">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Search name or type…">
+        </div>
+        <select id="deptSelect">
+          <option value="all">All types</option>
+        </select>
+        <select id="statusSelect">
+          <option value="all">All statuses</option>
+          <option value="present">Present</option>
+          <option value="late">Late</option>
+          <option value="absent">Absent</option>
+          <option value="leave">On leave</option>
+        </select>
+        <div class="chip-group" id="dateChips">
+          <button class="chip" data-range="today">Today</button>
+          <button class="chip" data-range="week">This week</button>
+          <button class="chip" data-range="month">This month</button>
+          <button class="chip active" data-range="all">All time</button>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn-clear" id="clearBtn"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          <button class="btn-export" id="exportBtn"><i class="fa-solid fa-arrow-down-to-line"></i> Export CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="panel">
+      <table>
+        <thead>
+          <tr>
+            <th data-key="employee_name">Employee <i class="fa-solid fa-arrow-down sort-arrow"></i></th>
+            <th data-key="date">Date <i class="fa-solid fa-arrow-down sort-arrow"></i></th>
+            <th data-key="punch">Punch Trail (09:00–18:00)</th>
+            <th data-key="hours">Hours <i class="fa-solid fa-arrow-down sort-arrow"></i></th>
+            <th data-key="status">Status <i class="fa-solid fa-arrow-down sort-arrow"></i></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="empty" id="emptyState" hidden>
+        <i class="fa-solid fa-folder-open"></i>No records match these filters
+      </div>
+      <div class="table-footer">
+        <div class="footer-left">
+          Rows per page
+          <select id="pageSizeSelect">
+            <option value="10">10</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+          </select>
+          <span id="rangeLabel"></span>
+        </div>
+        <div class="pager">
+          <button id="prevPage"><i class="fa-solid fa-chevron-left"></i></button>
+          <span id="pageLabel">Page 1</span>
+          <button id="nextPage"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Server data lives in a JSON script tag (not inline in JS) so the
+     Jinja print tag never confuses a JS/TS linter or editor. -->
+<script id="server-data" type="application/json">{{ attendance_records | default([]) | tojson }}</script>
+
+<script>
+/* =========================================================
+   Clock
+   ========================================================= */
+function tick(){
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+tick();
+setInterval(tick, 30000);
+
+/* =========================================================
+   Data: server-provided records (Jinja) with a demo fallback
+   so the page is fully interactive even without a backend.
+   ========================================================= */
+const SERVER_RECORDS = JSON.parse(document.getElementById('server-data').textContent || "[]");
+
+function buildDemoRecords(){
+  const names = ["Maya Lindqvist","Theo Brandt","Sana Okafor","Devon Pearce","Liora Avni",
+                 "Ravi Subramaniam","Cleo Marchetti","Imani Osei","Felix Hagen","Priya Nair",
+                 "Noor Haddad","Owen Castillo"];
+  const depts = ["Operations","Sales","Support","Warehouse","Design"];
+  const out = [];
+  let id = 1;
+  for(let d = 13; d >= 0; d--){
+    const day = new Date();
+    day.setDate(day.getDate() - d);
+    const iso = day.toISOString().slice(0,10);
+    names.forEach((name, i) => {
+      const roll = (i + d) % 10;
+      let status, clockIn, clockOut;
+      if(roll === 0){ status = "absent"; clockIn = null; clockOut = null; }
+      else if(roll === 1){ status = "leave"; clockIn = null; clockOut = null; }
+      else if(roll <= 3){
+        status = "late";
+        clockIn = "09:" + (35 + (i % 20));
+        clockOut = "18:0" + (i % 9);
+      } else {
+        status = "present";
+        const inMin = 0 + (i % 25);
+        clockIn = "08:" + String(45 + (inMin % 14)).padStart(2,'0');
+        clockOut = "17:" + String(50 + (i % 9)).padStart(2,'0');
+      }
+      out.push({
+        id: id++,
+        employee_name: name,
+        department: depts[i % depts.length],
+        date: iso,
+        clock_in: clockIn,
+        clock_out: clockOut,
+        status: status,
+        location: status === "absent" || status === "leave" ? "—" : (i % 3 === 0 ? "Remote" : "HQ Floor 2"),
+        notes: status === "late" ? "Traffic delay reported via app." :
+               status === "absent" ? "No check-in recorded; pending follow-up." :
+               status === "leave" ? "Approved leave on file." : "Standard shift, no issues."
+      });
+    });
+  }
+  return out;
+}
+
+const RECORDS = (SERVER_RECORDS && SERVER_RECORDS.length) ? SERVER_RECORDS : buildDemoRecords();
+
+/* =========================================================
+   State
+   ========================================================= */
+const state = {
+  search: "",
+  dept: "all",
+  status: "all",
+  range: "all",
+  sortKey: "date",
+  sortDir: "desc",
+  page: 1,
+  pageSize: 25,
+  openRow: null
+};
+
+/* populate type filter (Permanent/Temporary, from tem_per) */
+const deptSelect = document.getElementById('deptSelect');
+[...new Set(RECORDS.map(r => r.department))].sort().forEach(d => {
+  const opt = document.createElement('option');
+  opt.value = d; opt.textContent = d;
+  deptSelect.appendChild(opt);
+});
+
+/* =========================================================
+   Helpers
+   ========================================================= */
+function toMinutes(t){
+  if(!t) return null;
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+function hoursWorked(r){
+  const a = toMinutes(r.clock_in), b = toMinutes(r.clock_out);
+  if(a===null || b===null) return null;
+  return Math.round(((b-a)/60)*10)/10;
+}
+function startOfWeek(d){
+  const x = new Date(d); const day = x.getDay() || 7;
+  if(day !== 1) x.setDate(x.getDate() - day + 1);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function inRange(dateStr, range){
+  if(range === "all") return true;
+  const d = new Date(dateStr + "T00:00:00");
+  const now = new Date();
+  if(range === "today"){
+    return d.toDateString() === now.toDateString();
+  }
+  if(range === "week"){
+    return d >= startOfWeek(now);
+  }
+  if(range === "month"){
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }
+  return true;
+}
+
+function getFiltered(){
+  const q = state.search.trim().toLowerCase();
+  let rows = RECORDS.filter(r => {
+    if(state.dept !== "all" && r.department !== state.dept) return false;
+    if(state.status !== "all" && r.status !== state.status) return false;
+    if(!inRange(r.date, state.range)) return false;
+    if(q && !(r.employee_name.toLowerCase().includes(q) || r.department.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  rows.sort((a,b) => {
+    let av, bv;
+    if(state.sortKey === "hours"){ av = hoursWorked(a) ?? -1; bv = hoursWorked(b) ?? -1; }
+    else if(state.sortKey === "employee_name"){ av = a.employee_name; bv = b.employee_name; }
+    else if(state.sortKey === "status"){ av = a.status; bv = b.status; }
+    else { av = a.date; bv = b.date; }
+    if(av < bv) return state.sortDir === "asc" ? -1 : 1;
+    if(av > bv) return state.sortDir === "asc" ? 1 : -1;
+    return 0;
+  });
+  return rows;
+}
+
+const STATUS_META = {
+  present: { label:"Present", cls:"status-present" },
+  late:    { label:"Late", cls:"status-late" },
+  absent:  { label:"Absent", cls:"status-absent" },
+  leave:   { label:"On leave", cls:"status-leave" }
+};
+
+function initials(name){
+  return name.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
+}
+
+function punchTrailHTML(r){
+  const trackClass = "t-" + r.status;
+  const dayStart = 9*60, dayEnd = 18*60, span = dayEnd - dayStart;
+  const lateZonePct = ((9*60+30) - dayStart) / span * 100;
+
+  if(r.status === "absent"){
+    return `
+      <div class="punch-cell">
+        <div class="punch-track ${trackClass}"><div class="punch-empty">NO PUNCH</div></div>
+        <div class="punch-times"><span class="t-in">—</span><i class="fa-solid fa-arrow-right"></i><span class="t-out">—</span></div>
+      </div>`;
+  }
+  if(r.status === "leave"){
+    return `
+      <div class="punch-cell">
+        <div class="punch-track ${trackClass}"><div class="punch-empty">ON LEAVE</div></div>
+        <div class="punch-times"><span class="t-in">—</span><i class="fa-solid fa-arrow-right"></i><span class="t-out">—</span></div>
+      </div>`;
+  }
+  const inMin = toMinutes(r.clock_in), outMin = toMinutes(r.clock_out);
+  const clamp = v => Math.max(0, Math.min(100, v));
+  const inPct = clamp((inMin - dayStart) / span * 100);
+  const outPct = clamp((outMin - dayStart) / span * 100);
+  return `
+    <div class="punch-cell">
+      <div class="punch-track ${trackClass}">
+        <div class="late-zone" style="left:0; width:${lateZonePct}%;"></div>
+        <div class="punch-bar" style="left:${inPct}%; width:${Math.max(2,outPct-inPct)}%;"></div>
+        <div class="punch-dot" style="left:${inPct}%;"></div>
+        <div class="punch-dot" style="left:${outPct}%;"></div>
+      </div>
+      <div class="punch-times"><span class="t-in">${r.clock_in}</span><i class="fa-solid fa-arrow-right"></i><span class="t-out">${r.clock_out}</span></div>
+    </div>`;
+}
+
+/* =========================================================
+   Render table
+   ========================================================= */
+const tbody = document.getElementById('tableBody');
+const emptyState = document.getElementById('emptyState');
+
+function render(){
+  const filtered = getFiltered();
+  renderTrend(filtered);
+
+  const total = filtered.length;
+  const maxPage = Math.max(1, Math.ceil(total / state.pageSize));
+  if(state.page > maxPage) state.page = maxPage;
+  const startIdx = (state.page - 1) * state.pageSize;
+  const pageRows = filtered.slice(startIdx, startIdx + state.pageSize);
+
+  tbody.innerHTML = "";
+  emptyState.hidden = total !== 0;
+
+  pageRows.forEach(r => {
+    const meta = STATUS_META[r.status];
+    const hrs = hoursWorked(r);
+    const tr = document.createElement('tr');
+    tr.className = "data-row";
+    tr.dataset.id = r.id;
+    tr.innerHTML = `
+      <td>
+        <div class="name-cell">
+          <div class="avatar">${initials(r.employee_name)}</div>
+          <div class="name-text">
+            <div class="ledger-name">${r.employee_name}</div>
+            <div class="dept-tag">${r.department}</div>
+          </div>
+        </div>
+      </td>
+      <td class="date-cell">${formatDate(r.date)}</td>
+      <td>${punchTrailHTML(r)}</td>
+      <td class="hours-cell">${hrs !== null ? hrs + 'h' : '—'}</td>
+      <td><span class="status-pill ${meta.cls}"><span class="dot"></span>${meta.label}</span></td>
+      <td><i class="fa-solid fa-chevron-down expand-toggle"></i></td>
+    `;
+    const detailTr = document.createElement('tr');
+    detailTr.className = "detail-row";
+    detailTr.innerHTML = `
+      <td colspan="6">
+        <div class="detail-wrap">
+          <div class="detail-inner">
+            <div class="detail-block"><div class="lbl">Location</div>${r.location || '—'}</div>
+            <div class="detail-block"><div class="lbl">Notes</div>${r.notes || 'No notes on file.'}</div>
+          </div>
+        </div>
+      </td>`;
+    tr.addEventListener('click', () => {
+      const isOpen = tr.classList.contains('open');
+      document.querySelectorAll('tr.data-row.open').forEach(o => { o.classList.remove('open'); o.nextElementSibling.classList.remove('open'); });
+      if(!isOpen){ tr.classList.add('open'); detailTr.classList.add('open'); }
+    });
+    tbody.appendChild(tr);
+    tbody.appendChild(detailTr);
+  });
+
+  document.getElementById('rangeLabel').textContent = total
+    ? `Showing ${startIdx+1}–${Math.min(startIdx+state.pageSize, total)} of ${total}`
+    : `Showing 0 of 0`;
+  document.getElementById('pageLabel').textContent = `Page ${state.page} of ${maxPage}`;
+  document.getElementById('prevPage').disabled = state.page <= 1;
+  document.getElementById('nextPage').disabled = state.page >= maxPage;
+
+  document.querySelectorAll('thead th[data-key]').forEach(th => {
+    th.classList.toggle('sorted', th.dataset.key === state.sortKey);
+    const arrow = th.querySelector('.sort-arrow');
+    if(th.dataset.key === state.sortKey){
+      arrow.className = state.sortDir === 'asc' ? 'fa-solid fa-arrow-up sort-arrow' : 'fa-solid fa-arrow-down sort-arrow';
+    }
+  });
+}
+
+function formatDate(iso){
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+/* =========================================================
+   Trend chart (vanilla canvas, no library)
+   ========================================================= */
+const canvas = document.getElementById('trendCanvas');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('trendTooltip');
+let trendBars = [];
+
+function renderTrend(filtered){
+  const byDate = {};
+  filtered.forEach(r => {
+    byDate[r.date] = byDate[r.date] || { present:0, total:0 };
+    byDate[r.date].total++;
+    if(r.status === "present" || r.status === "late") byDate[r.date].present++;
+  });
+  const dates = Object.keys(byDate).sort();
+  document.getElementById('trendRangeLabel').textContent = dates.length
+    ? `${formatDate(dates[0])} – ${formatDate(dates[dates.length-1])}`
+    : 'No data';
+
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = 120;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+
+  trendBars = [];
+  if(!dates.length) return;
+
+  const padL = 8, padR = 8, padT = 12, padB = 18;
+  const chartW = w - padL - padR, chartH = h - padT - padB;
+  const barGap = 6;
+  const barW = Math.max(4, (chartW / dates.length) - barGap);
+
+  dates.forEach((d, i) => {
+    const pct = byDate[d].total ? byDate[d].present / byDate[d].total : 0;
+    const barH = pct * chartH;
+    const x = padL + i * (barW + barGap);
+    const y = padT + (chartH - barH);
+
+    ctx.fillStyle = pct >= 0.8 ? '#4F7A5B' : pct >= 0.5 ? '#E8A23D' : '#C1453B';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x, y, barW, barH, 3) : ctx.rect(x,y,barW,barH);
+    ctx.fill();
+
+    trendBars.push({ x, y, w:barW, h:barH, date:d, pct: Math.round(pct*100) });
+  });
+
+  // baseline
+  ctx.strokeStyle = '#D6E2D3';
+  ctx.beginPath();
+  ctx.moveTo(padL, padT+chartH+0.5);
+  ctx.lineTo(w-padR, padT+chartH+0.5);
+  ctx.stroke();
+}
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const bar = trendBars.find(b => x >= b.x && x <= b.x + b.w);
+  if(bar){
+    tooltip.innerHTML = `${formatDate(bar.date)}<br><b>${bar.pct}%</b> present`;
+    tooltip.style.left = (bar.x + bar.w/2) + 'px';
+    tooltip.style.top = bar.y + 'px';
+    tooltip.classList.add('show');
+  } else {
+    tooltip.classList.remove('show');
+  }
+});
+canvas.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+window.addEventListener('resize', () => renderTrend(getFiltered()));
+
+/* =========================================================
+   Event wiring
+   ========================================================= */
+document.getElementById('searchInput').addEventListener('input', e => {
+  state.search = e.target.value; state.page = 1; render();
+});
+deptSelect.addEventListener('change', e => { state.dept = e.target.value; state.page = 1; render(); });
+document.getElementById('statusSelect').addEventListener('change', e => { state.status = e.target.value; state.page = 1; render(); });
+
+document.getElementById('dateChips').addEventListener('click', e => {
+  const btn = e.target.closest('.chip');
+  if(!btn) return;
+  document.querySelectorAll('#dateChips .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  state.range = btn.dataset.range; state.page = 1; render();
+});
+
+document.querySelectorAll('thead th[data-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.key;
+    if(state.sortKey === key){ state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc'; }
+    else { state.sortKey = key; state.sortDir = key === 'employee_name' ? 'asc' : 'desc'; }
+    render();
+  });
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  state.search = ""; state.dept = "all"; state.status = "all"; state.range = "all"; state.page = 1;
+  document.getElementById('searchInput').value = "";
+  deptSelect.value = "all";
+  document.getElementById('statusSelect').value = "all";
+  document.querySelectorAll('#dateChips .chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('#dateChips .chip[data-range="all"]').classList.add('active');
+  render();
+});
+
+document.getElementById('pageSizeSelect').addEventListener('change', e => {
+  state.pageSize = Number(e.target.value); state.page = 1; render();
+});
+document.getElementById('prevPage').addEventListener('click', () => { state.page = Math.max(1, state.page-1); render(); });
+document.getElementById('nextPage').addEventListener('click', () => { state.page += 1; render(); });
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const rows = getFiltered();
+  const header = ["Employee","Type","Date","Clock In","Clock Out","Hours","Status","Location","Notes"];
+  const csvRows = rows.map(r => [
+    r.employee_name, r.department, r.date, r.clock_in || '', r.clock_out || '',
+    hoursWorked(r) ?? '', STATUS_META[r.status].label, r.location || '', (r.notes || '').replace(/,/g, ';')
+  ]);
+  const csv = [header, ...csvRows].map(row => row.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `attendance-log-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+
+render();
+</script>
+
+</body>
+</html>

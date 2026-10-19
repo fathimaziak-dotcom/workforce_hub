@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workforce Hub — Manager Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --ink:#161B2E;
+    --ink-2:#222A45;
+    --paper:#EEF1EC;
+    --card:#EEF4EC;
+    --line:#D6E2D3;
+    --amber:#E8A23D;
+    --amber-deep:#C97F22;
+    --clay:#C1453B;
+    --clay-soft:#F7E6E4;
+    --sage:#4F7A5B;
+    --sage-soft:#D9E9DA;
+    --slate:#5C6470;
+    --slate-soft:#E7EAF0;
+    --ink-text:#1D2333;
+    --font-display:'Big Shoulders Display', sans-serif;
+    --font-body:'Work Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--ink); font-family:var(--font-body); color:var(--ink-text); }
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer;}
+  :focus-visible{ outline:2px solid var(--amber-deep); outline-offset:2px; border-radius:4px; }
+  .layout{display:flex; min-height:100vh;}
+
+  .sidebar{
+    background:var(--ink); color:#C7CCDA; width:248px; flex-shrink:0;
+    padding:28px 18px; display:flex; flex-direction:column; gap:6px;
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; color:#fff;
+    font-family:var(--font-display); font-weight:700; font-size:22px;
+    letter-spacing:.02em; margin-bottom:34px; padding:0 10px;
+  }
+  .brand i{color:var(--amber); font-size:18px;}
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:11px 14px; border-radius:9px;
+    font-size:14.5px; font-weight:500; color:#AEB4C4; border-left:3px solid transparent;
+  }
+  .nav-item i{width:18px; text-align:center; font-size:14px;}
+  .nav-item:hover{background:var(--ink-2); color:#fff;}
+  .nav-item.active{ background:var(--ink-2); color:#fff; border-left:3px solid var(--amber); }
+  .nav-badge{
+    margin-left:auto; background:var(--amber); color:var(--ink);
+    font-family:var(--font-mono); font-size:11px; font-weight:600;
+    padding:1px 7px; border-radius:20px;
+  }
+
+  .main{flex:1; padding:32px 40px; max-width:1180px;}
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:30px; flex-wrap:wrap; gap:14px; }
+  .page-title{ font-family:var(--font-display); font-weight:700; font-size:34px; color:#fff; letter-spacing:.01em; }
+  .page-sub{ font-size:13.5px; color:#9BA3B8; margin-top:2px; }
+  .topbar-right{ display:flex; align-items:center; gap:12px; }
+  .clock{
+    font-family:var(--font-mono); font-size:13px; color:var(--ink);
+    background:var(--card); border:1px solid var(--line); padding:8px 14px; border-radius:8px;
+  }
+  .mode-pill{
+    background:var(--amber); color:var(--ink); font-size:12.5px; font-weight:600;
+    padding:8px 14px; border-radius:20px; display:flex; align-items:center; gap:6px;
+  }
+  .mode-pill i{color:var(--ink); font-size:9px;}
+
+  .stamp-row{ display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; margin-bottom:34px; }
+  .stamp-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:22px 22px 20px; display:flex; align-items:center; gap:18px;
+    box-shadow:0 14px 30px rgba(10,14,30,0.35);
+  }
+  .stamp{
+    width:74px; height:74px; border-radius:50%; border:2.5px dashed currentColor;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transform:rotate(-3deg); font-family:var(--font-display); font-weight:800; font-size:26px;
+  }
+  .stamp.sage{color:var(--sage); background:var(--sage-soft);}
+  .stamp.amber{color:var(--amber-deep); background:#FBF1E2;}
+  .stamp.clay{color:var(--clay); background:var(--clay-soft);}
+  .stamp.slate{color:var(--slate); background:var(--slate-soft);}
+  .stamp-label{
+    font-family:var(--font-mono); font-size:11.5px; letter-spacing:.06em;
+    color:var(--slate); text-transform:uppercase; margin-bottom:3px;
+  }
+  .stamp-sub{font-size:12.5px; color:var(--slate);}
+
+  .grid-2{ display:grid; grid-template-columns:1.3fr 1fr; gap:22px; margin-bottom:22px; }
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; box-shadow:0 14px 30px rgba(10,14,30,0.35);
+  }
+  .panel-head{ display:flex; align-items:center; gap:10px; padding:18px 22px; border-bottom:1px solid var(--line); }
+  .panel-head h2{
+    font-family:var(--font-display); font-size:17px; font-weight:700; margin:0;
+    color:var(--ink); display:flex; align-items:center; gap:9px;
+  }
+  .panel-head h2 i{color:var(--amber-deep); font-size:14px;}
+  .panel-head a{ margin-left:auto; font-size:12.5px; font-weight:600; color:var(--amber-deep); }
+
+  .ledger-row{ display:flex; align-items:flex-start; gap:14px; padding:18px 22px; border-bottom:1px solid var(--line); }
+  .ledger-row:last-child{border-bottom:none;}
+  .avatar{
+    width:38px; height:38px; border-radius:50%; background:#E2E7F2; color:var(--ink);
+    font-family:var(--font-mono); font-weight:600; font-size:13px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .ledger-body{flex:1; min-width:0;}
+  .ledger-name{font-weight:600; font-size:14.5px; color:var(--ink-text);}
+  .ledger-meta{ font-family:var(--font-mono); font-size:12px; color:var(--slate); margin-top:3px; display:flex; align-items:center; gap:6px; }
+  .ledger-reason{ font-size:13px; color:var(--slate); margin-top:5px; font-style:italic; }
+  .flag{
+    display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600;
+    color:var(--clay); background:var(--clay-soft); padding:3px 9px; border-radius:20px; margin-top:8px;
+  }
+  .row-actions{display:flex; gap:8px; flex-shrink:0;}
+  .btn{ border:none; border-radius:8px; padding:8px 13px; font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  .btn-approve{background:var(--sage); color:#fff;}
+  .btn-approve:hover{background:#436a51;}
+  .btn-reject{background:#fff; color:var(--clay); border:1px solid #E7C7C3;}
+  .btn-reject:hover{background:var(--clay-soft);}
+
+  .empty{ padding:40px 24px; text-align:center; color:var(--slate); }
+  .empty i{font-size:26px; color:var(--sage); margin-bottom:10px; display:block;}
+
+  .full-row{ display:flex; align-items:center; justify-content:space-between; padding:16px 22px; border-bottom:1px solid var(--line); }
+  .full-row:last-child{border-bottom:none;}
+  .date-chip{
+    font-family:var(--font-mono); font-size:12px; background:var(--paper); color:var(--ink);
+    padding:5px 10px; border-radius:7px; border:1px solid var(--line);
+  }
+
+  .breakdown-row{ padding:16px 22px; border-bottom:1px solid var(--line); }
+  .breakdown-row:last-child{border-bottom:none;}
+  .breakdown-top{ display:flex; justify-content:space-between; align-items:baseline; font-size:13px; margin-bottom:7px; }
+  .breakdown-top .label{font-weight:600; color:var(--ink-text);}
+  .breakdown-top .value{font-family:var(--font-mono); color:var(--slate);}
+  .breakdown-track{height:8px; background:var(--paper); border-radius:6px; overflow:hidden; border:1px solid var(--line);}
+  .breakdown-fill{height:100%; border-radius:6px;}
+  .breakdown-fill.present{background:var(--sage);}
+  .breakdown-fill.leave{background:var(--amber);}
+  .breakdown-fill.absent{background:var(--clay);}
+
+  .late-chip{
+    display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600;
+    color:var(--amber-deep); background:#FBF1E2; padding:3px 9px; border-radius:20px;
+  }
+
+  @media (max-width:980px){ .grid-2{grid-template-columns:1fr;} .stamp-row{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:760px){
+    .layout{flex-direction:column;}
+    .sidebar{ width:100%; flex-direction:row; align-items:center; padding:14px 16px; gap:2px; overflow-x:auto; }
+    .brand{display:none;}
+    .nav-item{flex-direction:column; gap:4px; padding:8px 12px; border-left:none; border-bottom:3px solid transparent;}
+    .nav-item.active{border-left:none; border-bottom:3px solid var(--amber);}
+    .main{padding:22px 18px;}
+    .page-title{font-size:26px;}
+    .stamp-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-briefcase"></i> Workforce Hub</div>
+    <a class="nav-item active" href="{{ url_for('manager_dashboard') }}"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+    <a class="nav-item" href="{{ url_for('attendance_log') }}"><i class="fa-regular fa-rectangle-list"></i><span>Attendance Log</span></a>
+    <a class="nav-item" href="{{ url_for('manager_approvals') }}">
+      <i class="fa-solid fa-square-check"></i><span>Approvals</span>
+      {% if pending_approvals_count and pending_approvals_count > 0 %}
+        <span class="nav-badge">{{ pending_approvals_count }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item " href="{{ url_for('manager_tasks') }}">
+      <i class="fa-solid fa-list-check"></i><span>Tasks</span>
+      {% if pending_tasks_count and pending_tasks_count > 0 %}
+        <span class="nav-badge">{{ pending_tasks_count }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item" href="{{ url_for('employee_directory') }}"><i class="fa-solid fa-users"></i><span>Employee Directory</span></a>
+    <a class="nav-item" href="{{ url_for('manager_settings') }}"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Today's Floor</div>
+        <div class="page-sub" id="dateLine">Manager view</div>
+      </div>
+      <div class="topbar-right">
+        <div class="clock" id="clock"></div>
+        <div class="mode-pill"><i class="fa-solid fa-circle"></i> Manager Mode</div>
+      </div>
+    </div>
+
+    <div class="stamp-row">
+      <div class="stamp-card">
+        <div class="stamp slate">{{ total_employees }}</div>
+        <div>
+          <div class="stamp-label">Total Employees</div>
+          <div class="stamp-sub">On the roster</div>
+        </div>
+      </div>
+      <div class="stamp-card">
+        <div class="stamp sage">{{ present_count }}</div>
+        <div>
+          <div class="stamp-label">Present Today</div>
+          <div class="stamp-sub">{{ present_pct }}% of {{ total_employees }} staff clocked in</div>
+        </div>
+      </div>
+      <div class="stamp-card">
+        <div class="stamp amber">{{ on_leave_count }}</div>
+        <div>
+          <div class="stamp-label">On Leave</div>
+          <div class="stamp-sub">
+            {% if on_leave_list %}{{ on_leave_list[0].name }}{% if on_leave_count > 1 %} +{{ on_leave_count - 1 }} more{% endif %}{% else %}No one out today{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="stamp-card">
+        <div class="stamp {{ 'clay' if pending_approvals_count > 0 else 'sage' }}">{{ pending_approvals_count }}</div>
+        <div>
+          <div class="stamp-label">Pending Approvals</div>
+          <div class="stamp-sub">{% if pending_approvals_count > 0 %}Needs your review{% else %}All caught up{% endif %}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head"><h2><i class="fa-solid fa-chart-simple"></i> Today's Attendance Breakdown</h2></div>
+        <div class="breakdown-row">
+          <div class="breakdown-top"><span class="label">Present</span><span class="value">{{ present_count }}</span></div>
+          <div class="breakdown-track"><div class="breakdown-fill present" style="width:{{ (present_count / total_employees * 100) if total_employees else 0 }}%;"></div></div>
+        </div>
+        <div class="breakdown-row">
+          <div class="breakdown-top"><span class="label">On Leave</span><span class="value">{{ on_leave_count }}</span></div>
+          <div class="breakdown-track"><div class="breakdown-fill leave" style="width:{{ (on_leave_count / total_employees * 100) if total_employees else 0 }}%;"></div></div>
+        </div>
+        <div class="breakdown-row">
+          <div class="breakdown-top"><span class="label">Absent</span><span class="value">{{ absent_count }}</span></div>
+          <div class="breakdown-track"><div class="breakdown-fill absent" style="width:{{ (absent_count / total_employees * 100) if total_employees else 0 }}%;"></div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2><i class="fa-solid fa-bolt"></i> Quick Leave Approvals</h2>
+          <a href="{{ url_for('manager_approvals') }}">View all</a>
+        </div>
+
+        {% if pending_requests %}
+          {% for req in pending_requests %}
+          <div class="ledger-row">
+            <div class="avatar">{{ req.employee_name[:2]|upper }}</div>
+            <div class="ledger-body">
+              <div class="ledger-name">{{ req.employee_name }}</div>
+              <div class="ledger-meta"><i class="fa-regular fa-calendar"></i> {{ req.leave_date }}</div>
+              <div class="ledger-reason">"{{ req.reason }}"</div>
+              {% if req.exceeds_limit %}
+                <div class="flag"><i class="fa-solid fa-triangle-exclamation"></i> Exceeds monthly limit</div>
+              {% endif %}
+            </div>
+            <div class="row-actions">
+              <form method="POST" action="{{ url_for('manager_approval_action', request_id=req.id, action='approve') }}">
+                <button type="submit" class="btn btn-approve"><i class="fa-solid fa-check"></i></button>
+              </form>
+              <form method="POST" action="{{ url_for('manager_approval_action', request_id=req.id, action='reject') }}">
+                <button type="submit" class="btn btn-reject"><i class="fa-solid fa-xmark"></i></button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty"><i class="fa-solid fa-circle-check"></i>No pending leave requests</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head"><h2><i class="fa-solid fa-clock"></i> Late Arrivals Today</h2></div>
+        {% if late_arrivals %}
+          {% for person in late_arrivals %}
+          <div class="ledger-row">
+            <div class="avatar">{{ person.name[:2]|upper }}</div>
+            <div class="ledger-body">
+              <div class="ledger-name">{{ person.name }}</div>
+              <div class="ledger-meta"><i class="fa-regular fa-clock"></i> {{ person.time }}</div>
+            </div>
+            <div class="late-chip"><i class="fa-solid fa-arrow-trend-up"></i> Late</div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty"><i class="fa-solid fa-circle-check"></i>No late arrivals today</div>
+        {% endif %}
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2><i class="fa-solid fa-plane"></i> On Leave Today</h2></div>
+        {% if on_leave_list %}
+          {% for person in on_leave_list %}
+          <div class="ledger-row">
+            <div class="avatar">{{ person.name[:2]|upper }}</div>
+            <div class="ledger-body">
+              <div class="ledger-name">{{ person.name }}</div>
+              <div class="ledger-meta"><i class="fa-regular fa-calendar"></i> {{ person.leave_date }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty"><i class="fa-solid fa-circle-check"></i>No one is on leave today</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2><i class="fa-regular fa-calendar-check"></i> Approved Upcoming Absences</h2></div>
+      {% if approved_upcoming %}
+        {% for person in approved_upcoming %}
+        <div class="full-row">
+          <div class="ledger-name">{{ person.name }}</div>
+          <div class="date-chip">{{ person.leave_date }}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty"><i class="fa-solid fa-circle-check"></i>No upcoming absences</div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function tick(){
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    document.getElementById('dateLine').textContent =
+      now.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'short' }) + ' · Manager view';
+  }
+  tick();
+  setInterval(tick, 30000);
+</script>
+
+</body>
+</html>

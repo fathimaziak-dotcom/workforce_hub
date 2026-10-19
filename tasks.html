@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workforce Hub — Tasks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --ink:#161B2E;
+    --ink-2:#222A45;
+    --paper:#EEF1EC;
+    --card:#EEF4EC;
+    --line:#D6E2D3;
+    --amber:#E8A23D;
+    --amber-deep:#C97F22;
+    --clay:#C1453B;
+    --clay-soft:#F7E6E4;
+    --sage:#4F7A5B;
+    --sage-soft:#D9E9DA;
+    --slate:#5C6470;
+    --slate-soft:#E7EAF0;
+    --ink-text:#1D2333;
+    --font-display:'Big Shoulders Display', sans-serif;
+    --font-body:'Work Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--ink); font-family:var(--font-body); color:var(--ink-text); }
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer;}
+  :focus-visible{ outline:2px solid var(--amber-deep); outline-offset:2px; border-radius:4px; }
+  .layout{display:flex; min-height:100vh;}
+
+  .sidebar{
+    background:var(--ink); color:#C7CCDA; width:248px; flex-shrink:0;
+    padding:28px 18px; display:flex; flex-direction:column; gap:6px;
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; color:#fff;
+    font-family:var(--font-display); font-weight:700;
+    letter-spacing:.02em; margin-bottom:34px; font-size:22px; padding:0 10px;
+  }
+  .brand i{color:var(--amber); font-size:18px;}
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:11px 14px;
+    font-size:14.5px; font-weight:500; color:#AEB4C4; border-radius:9px; border-left:3px solid transparent;
+  }
+  .nav-item i{width:18px; text-align:center; font-size:14px;}
+  .nav-item:hover{background:var(--ink-2); color:#fff;}
+  .nav-item.active{ background:var(--ink-2); color:#fff; border-left:3px solid var(--amber);}
+  .nav-badge{
+    margin-left:auto; background:var(--amber); color:var(--ink);
+    font-family:var(--font-mono); font-size:11px; padding:1px 7px; border-radius:20px; font-weight:600;
+  }
+
+  .main{flex:1; padding:32px 40px; max-width:1180px;}
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:30px; flex-wrap:wrap; gap:14px; }
+  .page-title{ font-family:var(--font-display); font-weight:700; font-size:34px; color:#fff; letter-spacing:.01em; }
+  .page-sub{ font-size:13.5px; color:#9BA3B8; margin-top:2px; }
+  .topbar-right{ display:flex; align-items:center; gap:12px; }
+  .clock{
+    font-family:var(--font-mono); font-size:13px; color:var(--ink);
+    background:var(--card); border:1px solid var(--line); padding:8px 14px; border-radius:8px;
+  }
+  .mode-pill{
+    background:var(--amber); color:var(--ink); font-size:12.5px; font-weight:600;
+    padding:8px 14px; border-radius:20px; display:flex; align-items:center; gap:6px;
+  }
+  .mode-pill i{color:var(--ink); font-size:9px;}
+
+  .stamp-row{ display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; margin-bottom:34px; }
+  .stamp-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:22px 22px 20px; display:flex; align-items:center; gap:18px;
+  }
+  .stamp{
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transform:rotate(-3deg); font-family:var(--font-display); font-weight:800; font-size:26px;
+  }
+  .stamp.sage{color:var(--sage); background:var(--sage-soft);}
+  .stamp.amber{color:var(--amber-deep); background:#FBF1E2;}
+  .stamp.clay{color:var(--clay); background:var(--clay-soft);}
+  .stamp.slate{color:var(--slate); background:var(--slate-soft);}
+  .stamp-label{
+    font-family:var(--font-mono); font-size:11.5px; letter-spacing:.06em;
+    color:var(--slate); text-transform:uppercase; margin-bottom:3px;
+  }
+  .stamp-sub{font-size:12.5px; color:var(--slate);}
+
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; box-shadow:0 14px 30px rgba(10,14,30,0.35); margin-bottom:24px;
+  }
+  .panel-head{ display:flex; align-items:center; gap:10px; padding:18px 22px; border-bottom:1px solid var(--line); }
+  .panel-head h2{
+    font-family:var(--font-display); font-size:17px; font-weight:700; margin:0;
+    color:var(--ink); display:flex; align-items:center; gap:9px;
+  }
+  .panel-head h2 i{color:var(--amber-deep); font-size:14px;}
+  .panel-head a{margin-left:auto; font-size:12.5px; font-weight:600; color:var(--amber-deep);}
+  .panel-body{padding:22px;}
+
+  /* form */
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px 18px; }
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field.full{grid-column:1 / -1;}
+  .field label{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--slate);
+  }
+  .field input, .field select, .field textarea{
+    font-family:var(--font-body); font-size:14px; color:var(--ink-text);
+    background:var(--paper); border:1px solid var(--line); border-radius:8px;
+    padding:10px 12px; width:100%;
+  }
+  .field textarea{resize:vertical; min-height:64px;}
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--amber-deep); }
+  .form-actions{ display:flex; justify-content:flex-end; margin-top:18px; }
+  .btn-primary{
+    background:var(--ink); color:#fff; border:none; border-radius:8px;
+    padding:11px 20px; font-size:13.5px; font-weight:600;
+    display:flex; align-items:center; gap:8px;
+  }
+  .btn-primary i{color:var(--amber);}
+  .btn-primary:hover{background:var(--ink-2);}
+
+  /* filter tabs */
+  .filter-tabs{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .filter-tab{
+    font-size:13px; font-weight:600; color:var(--slate); background:var(--card);
+    border:1px solid var(--line); padding:7px 14px; border-radius:20px;
+  }
+  .filter-tab.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  .ledger-row{ display:flex; align-items:flex-start; gap:14px; padding:18px 22px; border-bottom:1px solid var(--line); }
+  .ledger-row:last-child{border-bottom:none;}
+  .ledger-row.is-completed{opacity:.55;}
+  .avatar{
+    width:38px; height:38px; border-radius:50%; background:#E2E7F2; color:var(--ink);
+    font-family:var(--font-mono); font-weight:600; font-size:13px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .ledger-body{flex:1; min-width:0;}
+  .ledger-name{font-weight:600; font-size:14.5px; color:var(--ink-text);}
+  .ledger-name.strike{text-decoration:line-through;}
+  .ledger-meta{
+    font-family:var(--font-mono); font-size:12px; color:var(--slate);
+    margin-top:3px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  .ledger-reason{font-size:13px; color:var(--slate); margin-top:6px;}
+
+  .status-chip{
+    display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600;
+    padding:3px 9px; border-radius:20px; margin-top:8px;
+  }
+  .status-chip.pending{color:var(--amber-deep); background:#FBF1E2;}
+  .status-chip.completed{color:var(--sage); background:var(--sage-soft);}
+  .status-chip.overdue{color:var(--clay); background:var(--clay-soft);}
+
+  .row-actions{display:flex; gap:8px; flex-shrink:0;}
+  .btn{border:none; border-radius:8px; padding:8px 13px; font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:6px;}
+  .btn-approve{background:var(--sage); color:#fff;}
+  .btn-approve:hover{background:#436a51;}
+  .btn-reject{background:#fff; color:var(--clay); border:1px solid #E7C7C3;}
+  .btn-reject:hover{background:var(--clay-soft);}
+
+  .empty{padding:40px 24px; text-align:center; color:var(--slate);}
+  .empty i{font-size:26px; color:var(--sage); margin-bottom:10px; display:block;}
+
+  @media (max-width:980px){ .form-grid{grid-template-columns:1fr;} }
+  @media (max-width:760px){
+    .layout{flex-direction:column;}
+    .sidebar{ width:100%; flex-direction:row; align-items:center; padding:14px 16px; gap:2px; overflow-x:auto; }
+    .brand{display:none;}
+    .nav-item{flex-direction:column; gap:4px; padding:8px 12px; border-left:none; border-bottom:3px solid transparent;}
+    .nav-item.active{border-left:none; border-bottom:3px solid var(--amber);}
+    .main{padding:22px 18px;}
+    .page-title{font-size:26px;}
+    .stamp-row{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-briefcase"></i> Workforce Hub</div>
+    <a class="nav-item" href="{{ url_for('manager_dashboard') }}"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+    <a class="nav-item" href="{{ url_for('attendance_log') }}"><i class="fa-regular fa-rectangle-list"></i><span>Attendance Log</span></a>
+    <a class="nav-item" href="{{ url_for('manager_approvals') }}">
+      <i class="fa-solid fa-square-check"></i><span>Approvals</span>
+      {% if pending_approvals_count and pending_approvals_count > 0 %}
+        <span class="nav-badge">{{ pending_approvals_count }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item active" href="{{ url_for('manager_tasks') }}">
+      <i class="fa-solid fa-list-check"></i><span>Tasks</span>
+      {% if pending_tasks_count and pending_tasks_count > 0 %}
+        <span class="nav-badge">{{ pending_tasks_count }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item" href="{{ url_for('employee_directory') }}"><i class="fa-solid fa-users"></i><span>Employee Directory</span></a>
+    <a class="nav-item" href="{{ url_for('manager_settings') }}"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Tasks</div>
+        <div class="page-sub" id="dateLine">Manager view</div>
+      </div>
+      <div class="topbar-right">
+        <div class="clock" id="clock"></div>
+        <div class="mode-pill"><i class="fa-solid fa-circle"></i> Manager Mode</div>
+      </div>
+    </div>
+
+    <div class="stamp-row">
+      <div class="stamp-card">
+        <div class="stamp slate">{{ total_tasks }}</div>
+        <div>
+          <div class="stamp-label">Total Tasks</div>
+          <div class="stamp-sub">All assignments</div>
+        </div>
+      </div>
+      <div class="stamp-card">
+        <div class="stamp amber">{{ pending_tasks_count }}</div>
+        <div>
+          <div class="stamp-label">Pending</div>
+          <div class="stamp-sub">Not yet done</div>
+        </div>
+      </div>
+      <div class="stamp-card">
+        <div class="stamp sage">{{ completed_tasks_count }}</div>
+        <div>
+          <div class="stamp-label">Completed</div>
+          <div class="stamp-sub">Closed out</div>
+        </div>
+      </div>
+      <div class="stamp-card">
+        <div class="stamp clay">{{ overdue_tasks_count }}</div>
+        <div>
+          <div class="stamp-label">Overdue</div>
+          <div class="stamp-sub">Past due date</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2><i class="fa-solid fa-circle-plus"></i> Assign New Task</h2></div>
+      <div class="panel-body">
+        <form action="{{ url_for('create_task') }}" method="POST">
+          <div class="form-grid">
+            <div class="field full">
+              <label for="title">Task Title</label>
+              <input type="text" id="title" name="title" placeholder="e.g. Restock front counter" required>
+            </div>
+            <div class="field">
+              <label for="assigned_to">Assign To</label>
+              <select id="assigned_to" name="assigned_to" required>
+                <option value="" disabled selected>Select employee</option>
+                {% for employee in employees %}
+                  <option value="{{ employee.name }}">{{ employee.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label for="due_date">Due Date</label>
+              <input type="date" id="due_date" name="due_date">
+            </div>
+            <div class="field full">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" placeholder="Add any details the employee needs..."></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary"><i class="fa-solid fa-paper-plane"></i> Assign Task</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <a class="filter-tab {% if current_filter == 'all' or not current_filter %}active{% endif %}" href="{{ url_for('manager_tasks') }}">All</a>
+      <a class="filter-tab {% if current_filter == 'pending' %}active{% endif %}" href="{{ url_for('manager_tasks') }}?filter=pending">Pending</a>
+      <a class="filter-tab {% if current_filter == 'completed' %}active{% endif %}" href="{{ url_for('manager_tasks') }}?filter=completed">Completed</a>
+      <a class="filter-tab {% if current_filter == 'overdue' %}active{% endif %}" href="{{ url_for('manager_tasks') }}?filter=overdue">Overdue</a>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2><i class="fa-solid fa-list-check"></i> All Tasks</h2></div>
+
+      {% if tasks %}
+        {% for task in tasks %}
+        <div class="ledger-row {% if task.status == 'completed' %}is-completed{% endif %}">
+          <div class="avatar">{{ task.assigned_to[:2]|upper }}</div>
+          <div class="ledger-body">
+            <div class="ledger-name {% if task.status == 'completed' %}strike{% endif %}">{{ task.title }}</div>
+            <div class="ledger-meta">
+              <span><i class="fa-regular fa-user"></i> {{ task.assigned_to }}</span>
+              {% if task.due_date %}
+                <span><i class="fa-regular fa-calendar"></i> Due {{ task.due_date }}</span>
+              {% endif %}
+              <span><i class="fa-regular fa-pen"></i> Assigned by {{ task.assigned_by }}</span>
+            </div>
+            {% if task.description %}
+              <div class="ledger-reason">{{ task.description }}</div>
+            {% endif %}
+            {% if task.status == 'completed' %}
+              <span class="status-chip completed"><i class="fa-solid fa-check"></i> Completed</span>
+            {% elif task.is_overdue %}
+              <span class="status-chip overdue"><i class="fa-solid fa-triangle-exclamation"></i> Overdue</span>
+            {% else %}
+              <span class="status-chip pending"><i class="fa-solid fa-clock"></i> Pending</span>
+            {% endif %}
+          </div>
+          <div class="row-actions">
+            {% if task.status != 'completed' %}
+              <form action="{{ url_for('complete_task', task_id=task.id) }}" method="POST">
+                <button type="submit" class="btn btn-approve"><i class="fa-solid fa-check"></i> Complete</button>
+              </form>
+            {% endif %}
+            <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST">
+              <button type="submit" class="btn btn-reject"><i class="fa-solid fa-trash"></i> Delete</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty"><i class="fa-solid fa-circle-check"></i>No tasks to show</div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+
+<script>
+  function updateClock(){
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    document.getElementById('clock').textContent = time;
+    const dateStr = now.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'short' });
+    document.getElementById('dateLine').textContent = dateStr + ' · Manager view';
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+</script>
+
+</body>
+</html>

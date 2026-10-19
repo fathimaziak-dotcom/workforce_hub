@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Portal - Sign In</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* Deep Midnight Corporate Blue Background */
+            background-color: #0b132b; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-wrapper {
+            display: flex;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 800px;
+            max-width: 100%;
+            height: 500px;
+        }
+
+        /* Left Side: Form Container */
+        .login-side {
+            padding: 50px;
+            width: 55%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .brand-logo {
+            width: 12px;
+            height: 24px;
+            background-color: #2a6f97; /* Matches the new lighter blue side */
+            border-radius: 2px;
+            margin-right: 10px;
+        }
+
+        .brand-name {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #0b132b;
+        }
+
+        h2 {
+            color: #0b132b;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: #5c677d;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #48566a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #0b132b;
+            background-color: #f8fafc;
+            transition: all 0.15s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2a6f97;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(42, 111, 151, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #212529; /* Neutral Dark Slate Button for elegant contrast */
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.15s ease;
+        }
+
+        button:hover {
+            background-color: #000000;
+        }
+
+        /* Right Side: Adjusted to Lighter Corporate Blue & Centered Content */
+        .banner-side {
+            width: 45%;
+            background-color: #1a4968; /* Lighter, clean corporate blue */
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Vertically centers the items */
+            align-items: center;    /* Horizontally centers the items */
+            text-align: center;     /* Centers the actual text lines */
+            padding: 40px;
+        }
+
+        .banner-side h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .banner-side p {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #e2eafc; /* Light ice blue text color for readability */
+            max-width: 260px; /* Keeps text structure looking clean when centered */
+        }
+
+        /* Mobile Responsive adjustment */
+        @media (max-width: 768px) {
+            .banner-side { display: none; }
+            .login-wrapper { width: 400px; height: auto; }
+            .login-side { width: 100%; padding: 40px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        
+        <div class="login-side">
+            <div class="brand-header">
+                <div class="brand-logo"></div>
+                <div class="brand-name">Workforce Hub</div>
+            </div>
+
+            <h2>Account Sign In</h2>
+            <p class="subtitle">Secure authentication gateway.</p>
+            
+            <form action="/login_check" method="POST">
+                <div class="form-group">
+                    <label for="email">Corporate Email</label>
+                    <input type="email" id="email" name="email" placeholder="employee@company.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit">Log In</button>
+            </form>
+        </div>
+
+        <div class="banner-side">
+            <h3>Absence & Leave Management</h3>
+            <p>Access your personalized employee dashboard to track accruals, coordinate schedules, and manage organizational requests.</p>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workforce Hub — Approvals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --ink:#161B2E;
+    --ink-2:#222A45;
+    --paper:#EEF1EC;
+    --card:#EEF4EC;
+    --line:#D6E2D3;
+    --amber:#E8A23D;
+    --amber-deep:#C97F22;
+    --amber-soft:#FBF1E2;
+    --clay:#C1453B;
+    --clay-soft:#F7E6E4;
+    --sage:#4F7A5B;
+    --sage-soft:#D9E9DA;
+    --marine:#3F6F94;
+    --marine-soft:#E1EAF1;
+    --slate:#5C6470;
+    --slate-soft:#E7E9EE;
+    --ink-text:#1D2333;
+    --font-display:'Big Shoulders Display', sans-serif;
+    --font-body:'Work Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--ink); font-family:var(--font-body); color:var(--ink-text); }
+  a{color:inherit; text-decoration:none;}
+  button,select,input{font-family:inherit;}
+  button{cursor:pointer;}
+  :focus-visible{ outline:2px solid var(--amber-deep); outline-offset:2px; border-radius:4px; }
+  .layout{display:flex; min-height:100vh;}
+
+  /* ---------- Sidebar (shared shell) ---------- */
+  .sidebar{
+    background:var(--ink); color:#C7CCDA; width:248px; flex-shrink:0;
+    padding:28px 18px; display:flex; flex-direction:column; gap:6px;
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; color:#fff;
+    font-family:var(--font-display); font-weight:700; font-size:22px;
+    letter-spacing:.02em; margin-bottom:34px; padding:0 10px;
+  }
+  .brand i{color:var(--amber); font-size:18px;}
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:11px 14px; border-radius:9px;
+    font-size:14.5px; font-weight:500; color:#AEB4C4; border-left:3px solid transparent;
+  }
+  .nav-item i{width:18px; text-align:center; font-size:14px;}
+  .nav-item:hover{background:var(--ink-2); color:#fff;}
+  .nav-item.active{ background:var(--ink-2); color:#fff; border-left:3px solid var(--amber); }
+  .nav-badge{
+    margin-left:auto; background:var(--amber); color:var(--ink);
+    font-family:var(--font-mono); font-size:11px; font-weight:600;
+    padding:1px 7px; border-radius:20px;
+  }
+
+  .main{flex:1; padding:32px 40px; max-width:1240px;}
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:30px; flex-wrap:wrap; gap:14px; }
+  .page-title{ font-family:var(--font-display); font-weight:700; font-size:34px; color:#fff; letter-spacing:.01em; }
+  .page-sub{ font-size:13.5px; color:#9BA3B8; margin-top:2px; }
+  .topbar-right{ display:flex; align-items:center; gap:12px; }
+  .clock{
+    font-family:var(--font-mono); font-size:13px; color:var(--ink);
+    background:var(--card); border:1px solid var(--line); padding:8px 14px; border-radius:8px;
+  }
+  .mode-pill{
+    background:var(--amber); color:var(--ink); font-size:12.5px; font-weight:600;
+    padding:8px 14px; border-radius:20px; display:flex; align-items:center; gap:6px;
+  }
+  .mode-pill i{color:var(--ink); font-size:9px;}
+  .pulse{animation:pulseDot 1.8s infinite;}
+  @keyframes pulseDot{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  /* ---------- Stat strip ---------- */
+  .stamp-row{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; margin-bottom:26px; }
+  .stamp-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:20px 20px 18px; display:flex; align-items:center; gap:16px;
+    box-shadow:0 14px 30px rgba(10,14,30,0.35);
+  }
+  .stamp{
+    width:62px; height:62px; border-radius:50%; border:2.5px dashed currentColor;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transform:rotate(-3deg); font-family:var(--font-display); font-weight:800; font-size:22px;
+    transition:transform .25s ease;
+  }
+  .stamp-card:hover .stamp{transform:rotate(0deg) scale(1.04);}
+  .stamp.amber{color:var(--amber-deep); background:var(--amber-soft);}
+  .stamp.sage{color:var(--sage); background:var(--sage-soft);}
+  .stamp.clay{color:var(--clay); background:var(--clay-soft);}
+  .stamp-label{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.06em;
+    color:var(--slate); text-transform:uppercase; margin-bottom:3px;
+  }
+  .stamp-sub{font-size:12.5px; color:var(--slate);}
+
+  /* ---------- Panels (shared shell) ---------- */
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; box-shadow:0 14px 30px rgba(10,14,30,0.35); margin-bottom:22px;
+  }
+  .panel-head{ display:flex; align-items:center; gap:10px; padding:16px 22px; border-bottom:1px solid var(--line); }
+  .panel-head h2{
+    font-family:var(--font-display); font-size:17px; font-weight:700; margin:0;
+    color:var(--ink); display:flex; align-items:center; gap:9px;
+  }
+  .panel-head h2 i{color:var(--amber-deep); font-size:14px;}
+  .panel-head .panel-count{ margin-left:auto; font-family:var(--font-mono); font-size:11.5px; color:var(--slate); }
+
+  /* ---------- Request list ---------- */
+  .request-list{ padding:18px 22px; display:flex; flex-direction:column; gap:14px; }
+  .request-card{
+    background:var(--paper); border:1px solid var(--line); border-left:4px solid var(--amber-deep);
+    border-radius:12px; padding:18px 20px; display:flex; align-items:center;
+    justify-content:space-between; gap:18px; flex-wrap:wrap;
+  }
+  .request-left{ display:flex; align-items:flex-start; gap:14px; flex:1; min-width:240px; }
+  .avatar{
+    width:42px; height:42px; border-radius:50%; background:#E2E7F2; color:var(--ink);
+    font-family:var(--font-mono); font-weight:600; font-size:13px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .request-name{font-weight:600; font-size:14.5px; color:var(--ink-text);}
+  .request-meta{
+    font-family:var(--font-mono); font-size:12px; color:var(--slate);
+    display:flex; align-items:center; gap:6px; margin-top:4px;
+  }
+  .request-meta i{font-size:10px;}
+  .request-reason{ font-size:13px; color:var(--ink-text); margin-top:7px; font-style:italic; }
+  .exceeds-flag{
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600;
+    color:var(--clay); background:var(--clay-soft); padding:4px 10px; border-radius:20px; margin-top:8px;
+  }
+  .request-actions{ display:flex; gap:10px; flex-shrink:0; }
+  .btn-approve, .btn-reject{
+    display:flex; align-items:center; gap:7px; border-radius:9px; padding:9px 16px;
+    font-size:13px; font-weight:600; border:1px solid transparent;
+  }
+  .btn-approve{ background:var(--sage); color:#fff; }
+  .btn-approve:hover{ background:#436a51; }
+  .btn-reject{ background:#fff; color:var(--clay); border-color:var(--clay-soft); }
+  .btn-reject:hover{ background:var(--clay-soft); }
+
+  .empty{ padding:54px 24px; text-align:center; color:var(--slate); }
+  .empty .empty-icon{
+    width:58px; height:58px; border-radius:50%; background:var(--sage-soft); color:var(--sage);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:22px;
+  }
+  .empty p{margin:4px 0;}
+  .empty .empty-title{font-weight:600; color:var(--ink-text); font-size:15px;}
+  .empty .empty-sub{font-size:13px;}
+
+  @media (max-width:980px){ .stamp-row{grid-template-columns:1fr 1fr;} }
+  @media (max-width:760px){
+    .layout{flex-direction:column;}
+    .sidebar{ width:100%; flex-direction:row; align-items:center; padding:14px 16px; gap:2px; overflow-x:auto; }
+    .brand{display:none;}
+    .nav-item{flex-direction:column; gap:4px; padding:8px 12px; border-left:none; border-bottom:3px solid transparent;}
+    .nav-item.active{border-left:none; border-bottom:3px solid var(--amber);}
+    .main{padding:22px 18px;}
+    .page-title{font-size:26px;}
+    .stamp-row{grid-template-columns:1fr;}
+    .request-card{flex-direction:column; align-items:flex-start;}
+    .request-actions{width:100%;}
+    .btn-approve, .btn-reject{flex:1; justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-briefcase"></i> Workforce Hub</div>
+    <a class="nav-item" href="{{ url_for('manager_dashboard') }}"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+    <a class="nav-item" href="{{ url_for('attendance_log') }}"><i class="fa-regular fa-rectangle-list"></i><span>Attendance Log</span></a>
+    <a class="nav-item active" href="{{ url_for('manager_approvals') }}">
+      <i class="fa-solid fa-square-check"></i><span>Approvals</span>
+      {% if pending_requests and pending_requests|length > 0 %}
+        <span class="nav-badge">{{ pending_requests|length }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item" href="{{ url_for('manager_tasks') }}">
+      <i class="fa-solid fa-list-check"></i><span>Tasks</span>
+      {% if pending_tasks_count and pending_tasks_count > 0 %}
+        <span class="nav-badge">{{ pending_tasks_count }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item" href="{{ url_for('employee_directory') }}"><i class="fa-solid fa-users"></i><span>Employee Directory</span></a>
+    <a class="nav-item" href="{{ url_for('manager_settings') }}"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Leave Approvals</div>
+        <div class="page-sub">Pending requests & decisions</div>
+      </div>
+      <div class="topbar-right">
+        <div class="clock" id="clock"></div>
+        <div class="mode-pill"><i class="fa-solid fa-circle pulse"></i> Manager Mode</div>
+      </div>
+    </div>
+
+    <!-- Stat strip -->
+    <div class="stamp-row">
+      <div class="stamp-card">
+        <div class="stamp amber">{{ pending_requests|length if pending_requests else 0 }}</div>
+        <div><div class="stamp-label">Pending</div><div class="stamp-sub">awaiting your review</div></div>
+      </div>
+      <div class="stamp-card">
+        <div class="stamp clay">{{ pending_requests|selectattr('exceeds_limit')|list|length if pending_requests else 0 }}</div>
+        <div><div class="stamp-label">Exceeds Limit</div><div class="stamp-sub">flagged requests</div></div>
+      </div>
+    </div>
+
+    <!-- Requests panel -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2><i class="fa-solid fa-clipboard-check"></i> Pending Requests</h2>
+        <span class="panel-count">
+          {% if pending_requests %}{{ pending_requests|length }} waiting for review{% else %}all caught up{% endif %}
+        </span>
+      </div>
+
+      {% if pending_requests %}
+      <div class="request-list">
+        {% for req in pending_requests %}
+        <div class="request-card">
+          <div class="request-left">
+            <div class="avatar">{{ req.employee_name[:2]|upper }}</div>
+            <div>
+              <div class="request-name">{{ req.employee_name }}</div>
+              <div class="request-meta"><i class="fa-regular fa-calendar"></i> {{ req.leave_date }}</div>
+              {% if req.reason %}
+              <div class="request-reason">"{{ req.reason }}"</div>
+              {% endif %}
+              {% if req.exceeds_limit %}
+              <div class="exceeds-flag"><i class="fa-solid fa-triangle-exclamation"></i> Exceeds monthly limit</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="request-actions">
+            <form method="POST" action="{{ url_for('manager_approval_action', request_id=req.id, action='approve') }}">
+              <button type="submit" class="btn-approve"><i class="fa-solid fa-check"></i> Approve</button>
+            </form>
+            <form method="POST" action="{{ url_for('manager_approval_action', request_id=req.id, action='reject') }}">
+              <button type="submit" class="btn-reject"><i class="fa-solid fa-xmark"></i> Reject</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty">
+        <div class="empty-icon"><i class="fa-solid fa-check"></i></div>
+        <p class="empty-title">No pending leave requests</p>
+        <p class="empty-sub">New requests will show up here for review.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+<script>
+function tick(){
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+tick();
+setInterval(tick, 30000);
+</script>
+
+</body>
+</html>

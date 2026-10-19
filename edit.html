@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workforce Hub — Edit Employee</title>
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --bg: #f1f5f9;
+        --card-bg: #ffffff;
+        --border: #e2e8f0;
+        --text: #1e293b;
+        --muted: #64748b;
+        --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+    }
+
+    .topbar {
+        background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        color: #fff;
+        padding: 18px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .topbar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .topbar .brand-icon {
+        width: 32px;
+        height: 32px;
+        background: rgba(255,255,255,0.18);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .topbar .subtitle { font-size: 13px; opacity: 0.85; }
+
+    .page {
+        max-width: 760px;
+        margin: 36px auto 60px;
+        padding: 0 20px;
+    }
+
+    .form-container {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+        padding: 36px 40px;
+    }
+
+    .form-container h2 { margin: 0 0 4px 0; font-size: 24px; font-weight: 700; }
+    .form-container .form-desc { margin: 0 0 28px 0; font-size: 14px; color: var(--muted); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="date"],
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fbfcfe;
+        color: var(--text);
+    }
+
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        background: #fff;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fbfcfe;
+    }
+
+    .radio-option { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+    .radio-option input { accent-color: var(--primary); cursor: pointer; }
+    .radio-option label { margin: 0; font-weight: 500; cursor: pointer; }
+
+    .button-row { display: flex; gap: 12px; margin-top: 28px; }
+
+    .save-btn {
+        flex: 1;
+        padding: 13px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .save-btn:hover { background: var(--primary-dark); }
+
+    .cancel-btn {
+        flex: 1;
+        padding: 13px;
+        background: #fff;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 600;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .cancel-btn:hover { background: #f8fafc; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="brand">
+        <div class="brand-icon">⏱</div>
+        Workforce Hub
+    </div>
+    <div class="subtitle">Admin Console — Employee Management</div>
+</div>
+
+<div class="page">
+    <div class="form-container">
+        <h2>Edit Employee</h2>
+        <p class="form-desc">Update the details for {{ employee.name }} (Emp Code: {{ employee.emp_code }}).</p>
+
+        <form method="POST" action="/edit/{{ employee.id }}">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="emp">Employee Code</label>
+                    <input type="text" id="emp" name="emp_code" value="{{ employee.emp_code }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="employee_name" value="{{ employee.name }}" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="number">Phone Number</label>
+                    <input type="number" id="number" name="phone_number" value="{{ employee.phone }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email ID</label>
+                    <input type="text" id="email" name="email_id" value="{{ employee.email }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="male" name="gender" value="male" {% if employee.gender == 'male' %}checked{% endif %}>
+                        <label for="male">Male</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="female" name="gender" value="female" {% if employee.gender == 'female' %}checked{% endif %}>
+                        <label for="female">Female</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" id="dob" name="dob" value="{{ employee.dob }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="dateofjoining">Date of Joining</label>
+                    <input type="date" id="dateofjoining" name="date_join" value="{{ employee.date_join }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Employment Type</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="tem" name="tem_per" value="Temporary" {% if employee.status == 'Temporary' %}checked{% endif %}>
+                        <label for="tem">Temporary</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="per" name="tem_per" value="permanent" {% if employee.status == 'permanent' %}checked{% endif %}>
+                        <label for="per">Permanent</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="number">password</label>
+                    <input type="password" id="password" name="password" value="{{ employee.phone }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="role">System Role</label>
+                <select id="role" name="role" required>
+                    <option value="employee" {% if employee.role == 'employee' %}selected{% endif %}>Regular Employee</option>
+                    <option value="manager" {% if employee.role == 'manager' %}selected{% endif %}>Manager / Approver</option>
+                    <option value="admin" {% if employee.role == 'admin' %}selected{% endif %}>System Admin</option>
+                </select>
+            </div>
+
+            <div class="button-row">
+                <button type="submit" class="save-btn">Save Changes</button>
+                <a href="/view" class="cancel-btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

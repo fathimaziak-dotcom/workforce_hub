@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workforce Hub — Employee Directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --ink:#161B2E;
+    --ink-2:#222A45;
+    --paper:#EEF1EC;
+    --card:#EEF4EC;
+    --line:#D6E2D3;
+    --amber:#E8A23D;
+    --amber-deep:#C97F22;
+    --amber-soft:#FBF1E2;
+    --clay:#C1453B;
+    --clay-soft:#F7E6E4;
+    --sage:#4F7A5B;
+    --sage-soft:#D9E9DA;
+    --marine:#3F6F94;
+    --marine-soft:#E1EAF1;
+    --slate:#5C6470;
+    --slate-soft:#E7E9EE;
+    --ink-text:#1D2333;
+    --font-display:'Big Shoulders Display', sans-serif;
+    --font-body:'Work Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--ink); font-family:var(--font-body); color:var(--ink-text); }
+  a{color:inherit; text-decoration:none;}
+  button,select,input{font-family:inherit;}
+  button{cursor:pointer;}
+  :focus-visible{ outline:2px solid var(--amber-deep); outline-offset:2px; border-radius:4px; }
+  .layout{display:flex; min-height:100vh;}
+
+  /* ---------- Sidebar (shared shell) ---------- */
+  .sidebar{
+    background:var(--ink); color:#C7CCDA; width:248px; flex-shrink:0;
+    padding:28px 18px; display:flex; flex-direction:column; gap:6px;
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; color:#fff;
+    font-family:var(--font-display); font-weight:700; font-size:22px;
+    letter-spacing:.02em; margin-bottom:34px; padding:0 10px;
+  }
+  .brand i{color:var(--amber); font-size:18px;}
+  .nav-item{
+    display:flex; align-items:center; gap:13px; padding:11px 14px; border-radius:9px;
+    font-size:14.5px; font-weight:500; color:#AEB4C4; border-left:3px solid transparent;
+  }
+  .nav-item i{width:18px; text-align:center; font-size:14px;}
+  .nav-item:hover{background:var(--ink-2); color:#fff;}
+  .nav-item.active{ background:var(--ink-2); color:#fff; border-left:3px solid var(--amber); }
+  .nav-badge{
+    margin-left:auto; background:var(--amber); color:var(--ink);
+    font-family:var(--font-mono); font-size:11px; font-weight:600;
+    padding:1px 7px; border-radius:20px;
+  }
+
+  .main{flex:1; padding:32px 40px; max-width:1240px;}
+  .topbar{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:30px; flex-wrap:wrap; gap:14px; }
+  .page-title{ font-family:var(--font-display); font-weight:700; font-size:34px; color:#fff; letter-spacing:.01em; }
+  .page-sub{ font-size:13.5px; color:#9BA3B8; margin-top:2px; }
+  .topbar-right{ display:flex; align-items:center; gap:12px; }
+  .clock{
+    font-family:var(--font-mono); font-size:13px; color:var(--ink);
+    background:var(--card); border:1px solid var(--line); padding:8px 14px; border-radius:8px;
+  }
+  .mode-pill{
+    background:var(--amber); color:var(--ink); font-size:12.5px; font-weight:600;
+    padding:8px 14px; border-radius:20px; display:flex; align-items:center; gap:6px;
+  }
+  .mode-pill i{color:var(--ink); font-size:9px;}
+  .pulse{animation:pulseDot 1.8s infinite;}
+  @keyframes pulseDot{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  /* ---------- Stat strip ---------- */
+  .stamp-row{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-bottom:26px; }
+  .stamp-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:20px 20px 18px; display:flex; align-items:center; gap:16px;
+    box-shadow:0 14px 30px rgba(10,14,30,0.35);
+  }
+  .stamp{
+    width:62px; height:62px; border-radius:50%; border:2.5px dashed currentColor;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transform:rotate(-3deg); font-family:var(--font-display); font-weight:800; font-size:22px;
+    transition:transform .25s ease;
+  }
+  .stamp-card:hover .stamp{transform:rotate(0deg) scale(1.04);}
+  .stamp.marine{color:var(--marine); background:var(--marine-soft);}
+  .stamp.sage{color:var(--sage); background:var(--sage-soft);}
+  .stamp.amber{color:var(--amber-deep); background:var(--amber-soft);}
+  .stamp-label{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.06em;
+    color:var(--slate); text-transform:uppercase; margin-bottom:3px;
+  }
+  .stamp-sub{font-size:12.5px; color:var(--slate);}
+
+  /* ---------- Panel + toolbar ---------- */
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; box-shadow:0 14px 30px rgba(10,14,30,0.35); margin-bottom:22px;
+  }
+  .toolbar{ display:flex; align-items:center; gap:10px; padding:18px 22px; flex-wrap:wrap; }
+  .search-wrap{ position:relative; flex:1; min-width:220px; max-width:320px; }
+  .search-wrap i{ position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--slate); font-size:13px; }
+  .search-wrap input{
+    width:100%; padding:9px 12px 9px 34px; border:1px solid var(--line); border-radius:9px;
+    background:var(--paper); font-size:13px; color:var(--ink-text);
+  }
+  .toolbar-count{ margin-left:auto; font-family:var(--font-mono); font-size:12px; color:var(--slate); }
+
+  /* ---------- Employee grid ---------- */
+  .employee-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; padding:4px 22px 22px;
+  }
+  .employee-card{
+    background:var(--paper); border:1px solid var(--line); border-radius:14px;
+    padding:18px; transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .employee-card:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(10,14,30,0.18); }
+  .emp-head{ display:flex; align-items:center; gap:13px; margin-bottom:12px; }
+  .avatar{
+    width:46px; height:46px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-weight:700; font-size:13px;
+  }
+  .avatar.c0{background:var(--marine-soft); color:var(--marine);}
+  .avatar.c1{background:var(--sage-soft); color:var(--sage);}
+  .avatar.c2{background:var(--clay-soft); color:var(--clay);}
+  .avatar.c3{background:var(--amber-soft); color:var(--amber-deep);}
+  .avatar.c4{background:#E2E2F2; color:#5B53A8;}
+  .emp-name{ font-weight:600; font-size:14.5px; color:var(--ink-text); }
+  .emp-code{ font-family:var(--font-mono); font-size:11px; color:var(--slate); margin-top:2px; }
+  .emp-tag{
+    display:inline-flex; align-items:center; font-size:11px; font-weight:600;
+    padding:3px 10px; border-radius:20px; margin-bottom:12px;
+  }
+  .emp-tag.permanent{ color:var(--sage); background:var(--sage-soft); }
+  .emp-tag.temporary{ color:var(--amber-deep); background:var(--amber-soft); }
+  .emp-detail{
+    display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--slate);
+    margin-bottom:6px; font-family:var(--font-mono);
+  }
+  .emp-detail i{ width:14px; text-align:center; color:var(--slate); font-size:11px; }
+  .emp-detail.truncate{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  .empty{ padding:54px 24px; text-align:center; color:var(--slate); grid-column:1 / -1; }
+  .empty .empty-icon{
+    width:58px; height:58px; border-radius:50%; background:var(--marine-soft); color:var(--marine);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:22px;
+  }
+  .empty p{margin:4px 0;}
+  .empty .empty-title{font-weight:600; color:var(--ink-text); font-size:15px;}
+  .empty .empty-sub{font-size:13px;}
+
+  @media (max-width:1100px){ .employee-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:980px){ .stamp-row{grid-template-columns:1fr 1fr;} }
+  @media (max-width:760px){
+    .layout{flex-direction:column;}
+    .sidebar{ width:100%; flex-direction:row; align-items:center; padding:14px 16px; gap:2px; overflow-x:auto; }
+    .brand{display:none;}
+    .nav-item{flex-direction:column; gap:4px; padding:8px 12px; border-left:none; border-bottom:3px solid transparent;}
+    .nav-item.active{border-left:none; border-bottom:3px solid var(--amber);}
+    .main{padding:22px 18px;}
+    .page-title{font-size:26px;}
+    .stamp-row{grid-template-columns:1fr;}
+    .employee-grid{grid-template-columns:1fr; padding:4px 16px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand"><i class="fa-solid fa-briefcase"></i> Workforce Hub</div>
+    <a class="nav-item" href="{{ url_for('manager_dashboard') }}"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+    <a class="nav-item" href="{{ url_for('attendance_log') }}"><i class="fa-regular fa-rectangle-list"></i><span>Attendance Log</span></a>
+    <a class="nav-item" href="{{ url_for('manager_approvals') }}">
+      <i class="fa-solid fa-square-check"></i><span>Approvals</span>
+      {% if pending_requests and pending_requests|length > 0 %}
+        <span class="nav-badge">{{ pending_requests|length }}</span>
+      {% endif %}
+    </a>
+    <a class="nav-item " href="{{ url_for('manager_tasks') }}"><i class="fa-solid fa-list-check"></i><span>Tasks</span>
+    <a class="nav-item active" href="{{ url_for('employee_directory') }}"><i class="fa-solid fa-users"></i><span>Employee Directory</span></a>
+    <a class="nav-item" href="{{ url_for('manager_settings') }}"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title">Employee Directory</div>
+        <div class="page-sub">Your team at a glance</div>
+      </div>
+      <div class="topbar-right">
+        <div class="clock" id="clock"></div>
+        <div class="mode-pill"><i class="fa-solid fa-circle pulse"></i> Manager Mode</div>
+      </div>
+    </div>
+
+    <!-- Stat strip -->
+    <div class="stamp-row">
+      <div class="stamp-card">
+        <div class="stamp marine">{{ employees|length if employees else 0 }}</div>
+        <div><div class="stamp-label">Total</div><div class="stamp-sub">employees on record</div></div>
+      </div>
+      <div class="stamp-card">
+        <div class="stamp sage">{{ employees|selectattr('tem_per','in',['permanent','per'])|list|length if employees else 0 }}</div>
+        <div><div class="stamp-label">Permanent</div><div class="stamp-sub">full-time staff</div></div>
+      </div>
+      <div class="stamp-card">
+        <div class="stamp amber">{{ employees|rejectattr('tem_per','in',['permanent','per'])|list|length if employees else 0 }}</div>
+        <div><div class="stamp-label">Temporary</div><div class="stamp-sub">contract staff</div></div>
+      </div>
+    </div>
+
+    <!-- Search + grid -->
+    <div class="panel">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="employeeSearch" placeholder="Search by name…">
+        </div>
+        <span class="toolbar-count">
+          {% if employees %}{{ employees|length }} employee{{ 's' if employees|length != 1 else '' }}{% else %}0 employees{% endif %}
+        </span>
+      </div>
+
+      {% if employees %}
+      <div id="employeeGrid" class="employee-grid">
+        {% for emp in employees %}
+        {% set is_perm = emp.tem_per == 'permanent' or emp.tem_per == 'per' %}
+        <div class="employee-card">
+          <div class="emp-head">
+            <div class="avatar c{{ loop.index0 % 5 }}">{{ emp.employee_name[:2]|upper }}</div>
+            <div>
+              <div class="emp-name">{{ emp.employee_name }}</div>
+              <div class="emp-code">{{ emp.emp_code or 'Code not assigned' }}</div>
+            </div>
+          </div>
+          <span class="emp-tag {{ 'permanent' if is_perm else 'temporary' }}">
+            {{ 'Permanent' if is_perm else 'Temporary' }}
+          </span>
+          <div class="emp-detail"><i class="fa-solid fa-phone"></i> {{ emp.phone_number or '—' }}</div>
+          <div class="emp-detail truncate"><i class="fa-solid fa-envelope"></i> {{ emp.email_id or '—' }}</div>
+          <div class="emp-detail"><i class="fa-solid fa-calendar-day"></i> Joined {{ emp.date_join }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="employee-grid">
+        <div class="empty">
+          <div class="empty-icon"><i class="fa-solid fa-users"></i></div>
+          <p class="empty-title">No employees found</p>
+          <p class="empty-sub">Employees you add will appear here.</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+<script>
+function tick(){
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+tick();
+setInterval(tick, 30000);
+
+const searchInput = document.getElementById('employeeSearch');
+if (searchInput) {
+  searchInput.addEventListener('input', function () {
+    const query = this.value.toLowerCase();
+    document.querySelectorAll('.employee-card').forEach(card => {
+      const name = card.querySelector('.emp-name').textContent.toLowerCase();
+      card.style.display = name.includes(query) ? '' : 'none';
+    });
+  });
+}
+</script>
+
+</body>
+</html>

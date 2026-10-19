@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workforce Hub — Employee Directory</title>
+<style>
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --bg: #f1f5f9;
+        --card-bg: #ffffff;
+        --border: #e2e8f0;
+        --text: #1e293b;
+        --muted: #64748b;
+        --radius: 10px;
+        --green: #16a34a;
+        --green-dark: #15803d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+    }
+
+    .topbar {
+        background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        color: #fff;
+        padding: 18px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .topbar .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .topbar .brand-icon {
+        width: 32px;
+        height: 32px;
+        background: rgba(255,255,255,0.18);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .topbar .subtitle {
+        font-size: 13px;
+        opacity: 0.85;
+    }
+
+    .page {
+        max-width: 1300px;
+        margin: 32px auto 60px;
+        padding: 0 20px;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .page-header h2 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .page-header p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 18px;
+        background: #fff;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .back-btn:hover { background: var(--primary); color: #fff; }
+
+    .table-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1100px;
+        font-size: 13.5px;
+    }
+
+    thead th {
+        background: #f8fafc;
+        color: var(--muted);
+        text-transform: uppercase;
+        font-size: 11.5px;
+        letter-spacing: 0.04em;
+        font-weight: 700;
+        text-align: left;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    tbody td {
+        padding: 13px 16px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    tbody tr:hover { background: #f8fafc; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .badge.permanent { background: #dcfce7; color: var(--green-dark); }
+    .badge.temporary { background: #fef3c7; color: #92400e; }
+
+    .badge.role-admin { background: #ede9fe; color: #6d28d9; }
+    .badge.role-manager { background: #dbeafe; color: #1d4ed8; }
+    .badge.role-employee { background: #f1f5f9; color: #475569; }
+
+    .edit-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 14px;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 12.5px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+
+    .edit-btn:hover { background: var(--primary-dark); }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+    }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="brand">
+        <div class="brand-icon">⏱</div>
+        Workforce Hub
+    </div>
+    <div class="subtitle">Admin Console — Employee Management</div>
+</div>
+
+<div class="page">
+    <div class="page-header">
+        <div>
+            <h2>Employee Directory</h2>
+            <p>All registered employees and their account details.</p>
+        </div>
+        <a href="http://127.0.0.1:5001/admin" class="back-btn">&larr; Back to Add Employee</a>
+    </div>
+
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Employer ID</th>
+                    <th>Emp Code</th>
+                    <th>Name</th>
+                    <th>Phone No</th>
+                    <th>Email ID</th>
+                    <th>Gender</th>
+                    <th>Date of Birth</th>
+                    <th>Date of Joining</th>
+                    <th>Status</th>
+                    <th>Profile Picture</th>
+                    <th>password</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>{{ row.id or "_" }}</td>
+                    <td>{{ row.emp_code or "—" }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.phone }}</td>
+                    <td>{{ row.email }}</td>
+                    <td>{{ row.gender }}</td>
+                    <td>{{ row.dob }}</td>
+                    <td>{{ row.date_join or "—" }}</td>
+
+                    <td>
+                        <span class="badge {{ row.status|lower }}">{{ row.status }}</span>
+                    </td>
+                    <td>{{ row.photo_tag|safe }}</td>
+                    <td>{{ row.password }}</td>
+                    <td>
+
+                        <span class="badge role-{{ row.role|lower }}">{{ row.role }}</span>
+                    </td>
+                    <td>
+                        <a href="http://127.0.0.1:5001/edit/{{ row.id }}" class="edit-btn">Edit</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="12">
+                        <div class="empty-state">No employee records found yet.</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
